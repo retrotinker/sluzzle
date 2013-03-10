@@ -16,18 +16,6 @@
 	nam	paltest2
 	ttl	Display 44 colors using a "flicker" mode on the CoCo
 
-	ifeq	NTSC-1
-VSLIN1	equ	$1f
-VBLIN1	equ	$25
-VSLIN2	equ	$21
-VBLIN2	equ	$26
-	else
-VSLIN1	equ	$38
-VBLIN1	equ	$3e
-VSLIN2	equ	$3a
-VBLIN2	equ	$3f
-	endif
-
 LOAD	equ	$1e00
 
 	org	LOAD
@@ -261,7 +249,7 @@ VSTART	ldb     $ff01	Disable hsync interrupt generation
 *
 * After the program starts, vsync interrupts aren't used...
 *
-	ldb	#VSLIN1	Count lines during vblank and vertical borders
+	ldb	#$1f	Count lines during vblank and vertical borders
 HCVSTRT	tst	$ff00
 	sync
 	decb
@@ -273,7 +261,7 @@ VSYNC	clr	$ffcc
 	lda	#$e8	Set for G6C mode to get chosen background!
 	sta	$ff22
 
-	ldb	#VBLIN1	Count lines during vblank and vertical borders
+	ldb	#$25	Count lines during vblank and vertical borders
 HCVSYNC	tst	$ff00
 	sync
 	decb
@@ -287,22 +275,15 @@ HCVSYNC	tst	$ff00
 * then each line will have individual sta/stb sequences and possibly
 * with other cycle delays as appropriate for the given image.
 *
-	stb	$ff22	Set CSS for beginning of next line
-
 	tst	$ff00	Wait for next hsync interrupt
 	sync
 
 	nop		Extra delay for beginning of visible line
-	ifeq	NTSC-1
 	nop
 	nop
-	nop
-	nop
-	else
-	andcc	#$ff
-	endif
 
-	sta	$ff22	Change CSS up to 7 more times per line
+	stb	$ff22	Change CSS up to 8 times per line
+	sta	$ff22
 	stb	$ff22
 	stb	$ff22
 	sta	$ff22
@@ -314,22 +295,15 @@ HCVSYNC	tst	$ff00
 * Repeated 191 more times...
 *
 
-	stb	$ff22	Set CSS for beginning of next line
-
 	tst	$ff00	Wait for next hsync interrupt
 	sync
 
 	nop		Extra delay for beginning of visible line
-	ifeq	NTSC-1
-	nop
 	nop
 	nop
-	nop
-	else
-	andcc	#$ff
-	endif
 
-	sta	$ff22	Change CSS up to 7 more times per line
+	stb	$ff22	Change CSS up to 8 times per line
+	sta	$ff22
 	stb	$ff22
 	stb	$ff22
 	sta	$ff22
@@ -337,22 +311,15 @@ HCVSYNC	tst	$ff00
 	sta	$ff22
 	sta	$ff22
 
-	stb	$ff22	Set CSS for beginning of next line
-
 	tst	$ff00	Wait for next hsync interrupt
 	sync
 
 	nop		Extra delay for beginning of visible line
-	ifeq	NTSC-1
-	nop
 	nop
 	nop
-	nop
-	else
-	andcc	#$ff
-	endif
 
-	sta	$ff22	Change CSS up to 7 more times per line
+	stb	$ff22	Change CSS up to 8 times per line
+	sta	$ff22
 	stb	$ff22
 	stb	$ff22
 	sta	$ff22
@@ -360,22 +327,15 @@ HCVSYNC	tst	$ff00
 	sta	$ff22
 	sta	$ff22
 
-	stb	$ff22	Set CSS for beginning of next line
-
 	tst	$ff00	Wait for next hsync interrupt
 	sync
 
 	nop		Extra delay for beginning of visible line
-	ifeq	NTSC-1
-	nop
 	nop
 	nop
-	nop
-	else
-	andcc	#$ff
-	endif
 
-	sta	$ff22	Change CSS up to 7 more times per line
+	stb	$ff22	Change CSS up to 8 times per line
+	sta	$ff22
 	stb	$ff22
 	stb	$ff22
 	sta	$ff22
@@ -383,22 +343,15 @@ HCVSYNC	tst	$ff00
 	sta	$ff22
 	sta	$ff22
 
-	stb	$ff22	Set CSS for beginning of next line
-
 	tst	$ff00	Wait for next hsync interrupt
 	sync
 
 	nop		Extra delay for beginning of visible line
-	ifeq	NTSC-1
-	nop
 	nop
 	nop
-	nop
-	else
-	andcc	#$ff
-	endif
 
-	sta	$ff22	Change CSS up to 7 more times per line
+	stb	$ff22	Change CSS up to 8 times per line
+	sta	$ff22
 	stb	$ff22
 	stb	$ff22
 	sta	$ff22
@@ -406,22 +359,15 @@ HCVSYNC	tst	$ff00
 	sta	$ff22
 	sta	$ff22
 
-	stb	$ff22	Set CSS for beginning of next line
-
 	tst	$ff00	Wait for next hsync interrupt
 	sync
 
 	nop		Extra delay for beginning of visible line
-	ifeq	NTSC-1
-	nop
 	nop
 	nop
-	nop
-	else
-	andcc	#$ff
-	endif
 
-	sta	$ff22	Change CSS up to 7 more times per line
+	stb	$ff22	Change CSS up to 8 times per line
+	sta	$ff22
 	stb	$ff22
 	stb	$ff22
 	sta	$ff22
@@ -429,22 +375,15 @@ HCVSYNC	tst	$ff00
 	sta	$ff22
 	sta	$ff22
 
-	stb	$ff22	Set CSS for beginning of next line
-
 	tst	$ff00	Wait for next hsync interrupt
 	sync
 
 	nop		Extra delay for beginning of visible line
-	ifeq	NTSC-1
-	nop
 	nop
 	nop
-	nop
-	else
-	andcc	#$ff
-	endif
 
-	sta	$ff22	Change CSS up to 7 more times per line
+	stb	$ff22	Change CSS up to 8 times per line
+	sta	$ff22
 	stb	$ff22
 	stb	$ff22
 	sta	$ff22
@@ -452,22 +391,15 @@ HCVSYNC	tst	$ff00
 	sta	$ff22
 	sta	$ff22
 
-	stb	$ff22	Set CSS for beginning of next line
-
 	tst	$ff00	Wait for next hsync interrupt
 	sync
 
 	nop		Extra delay for beginning of visible line
-	ifeq	NTSC-1
-	nop
 	nop
 	nop
-	nop
-	else
-	andcc	#$ff
-	endif
 
-	sta	$ff22	Change CSS up to 7 more times per line
+	stb	$ff22	Change CSS up to 8 times per line
+	sta	$ff22
 	stb	$ff22
 	stb	$ff22
 	sta	$ff22
@@ -475,22 +407,15 @@ HCVSYNC	tst	$ff00
 	sta	$ff22
 	sta	$ff22
 
-	stb	$ff22	Set CSS for beginning of next line
-
 	tst	$ff00	Wait for next hsync interrupt
 	sync
 
 	nop		Extra delay for beginning of visible line
-	ifeq	NTSC-1
-	nop
 	nop
 	nop
-	nop
-	else
-	andcc	#$ff
-	endif
 
-	sta	$ff22	Change CSS up to 7 more times per line
+	stb	$ff22	Change CSS up to 8 times per line
+	sta	$ff22
 	stb	$ff22
 	stb	$ff22
 	sta	$ff22
@@ -498,22 +423,15 @@ HCVSYNC	tst	$ff00
 	sta	$ff22
 	sta	$ff22
 
-	stb	$ff22	Set CSS for beginning of next line
-
 	tst	$ff00	Wait for next hsync interrupt
 	sync
 
 	nop		Extra delay for beginning of visible line
-	ifeq	NTSC-1
-	nop
 	nop
 	nop
-	nop
-	else
-	andcc	#$ff
-	endif
 
-	sta	$ff22	Change CSS up to 7 more times per line
+	stb	$ff22	Change CSS up to 8 times per line
+	sta	$ff22
 	stb	$ff22
 	stb	$ff22
 	sta	$ff22
@@ -521,22 +439,15 @@ HCVSYNC	tst	$ff00
 	sta	$ff22
 	sta	$ff22
 
-	stb	$ff22	Set CSS for beginning of next line
-
 	tst	$ff00	Wait for next hsync interrupt
 	sync
 
 	nop		Extra delay for beginning of visible line
-	ifeq	NTSC-1
-	nop
 	nop
 	nop
-	nop
-	else
-	andcc	#$ff
-	endif
 
-	sta	$ff22	Change CSS up to 7 more times per line
+	stb	$ff22	Change CSS up to 8 times per line
+	sta	$ff22
 	stb	$ff22
 	stb	$ff22
 	sta	$ff22
@@ -544,22 +455,15 @@ HCVSYNC	tst	$ff00
 	sta	$ff22
 	sta	$ff22
 
-	stb	$ff22	Set CSS for beginning of next line
-
 	tst	$ff00	Wait for next hsync interrupt
 	sync
 
 	nop		Extra delay for beginning of visible line
-	ifeq	NTSC-1
-	nop
 	nop
 	nop
-	nop
-	else
-	andcc	#$ff
-	endif
 
-	sta	$ff22	Change CSS up to 7 more times per line
+	stb	$ff22	Change CSS up to 8 times per line
+	sta	$ff22
 	stb	$ff22
 	stb	$ff22
 	sta	$ff22
@@ -567,22 +471,15 @@ HCVSYNC	tst	$ff00
 	sta	$ff22
 	sta	$ff22
 
-	stb	$ff22	Set CSS for beginning of next line
-
 	tst	$ff00	Wait for next hsync interrupt
 	sync
 
 	nop		Extra delay for beginning of visible line
-	ifeq	NTSC-1
-	nop
 	nop
 	nop
-	nop
-	else
-	andcc	#$ff
-	endif
 
-	sta	$ff22	Change CSS up to 7 more times per line
+	stb	$ff22	Change CSS up to 8 times per line
+	sta	$ff22
 	stb	$ff22
 	stb	$ff22
 	sta	$ff22
@@ -590,22 +487,15 @@ HCVSYNC	tst	$ff00
 	sta	$ff22
 	sta	$ff22
 
-	stb	$ff22	Set CSS for beginning of next line
-
 	tst	$ff00	Wait for next hsync interrupt
 	sync
 
 	nop		Extra delay for beginning of visible line
-	ifeq	NTSC-1
-	nop
 	nop
 	nop
-	nop
-	else
-	andcc	#$ff
-	endif
 
-	sta	$ff22	Change CSS up to 7 more times per line
+	stb	$ff22	Change CSS up to 8 times per line
+	sta	$ff22
 	stb	$ff22
 	stb	$ff22
 	sta	$ff22
@@ -613,22 +503,15 @@ HCVSYNC	tst	$ff00
 	sta	$ff22
 	sta	$ff22
 
-	stb	$ff22	Set CSS for beginning of next line
-
 	tst	$ff00	Wait for next hsync interrupt
 	sync
 
 	nop		Extra delay for beginning of visible line
-	ifeq	NTSC-1
-	nop
 	nop
 	nop
-	nop
-	else
-	andcc	#$ff
-	endif
 
-	sta	$ff22	Change CSS up to 7 more times per line
+	stb	$ff22	Change CSS up to 8 times per line
+	sta	$ff22
 	stb	$ff22
 	stb	$ff22
 	sta	$ff22
@@ -636,22 +519,15 @@ HCVSYNC	tst	$ff00
 	sta	$ff22
 	sta	$ff22
 
-	stb	$ff22	Set CSS for beginning of next line
-
 	tst	$ff00	Wait for next hsync interrupt
 	sync
 
 	nop		Extra delay for beginning of visible line
-	ifeq	NTSC-1
-	nop
 	nop
 	nop
-	nop
-	else
-	andcc	#$ff
-	endif
 
-	sta	$ff22	Change CSS up to 7 more times per line
+	stb	$ff22	Change CSS up to 8 times per line
+	sta	$ff22
 	stb	$ff22
 	stb	$ff22
 	sta	$ff22
@@ -659,22 +535,15 @@ HCVSYNC	tst	$ff00
 	sta	$ff22
 	sta	$ff22
 
-	stb	$ff22	Set CSS for beginning of next line
-
 	tst	$ff00	Wait for next hsync interrupt
 	sync
 
 	nop		Extra delay for beginning of visible line
-	ifeq	NTSC-1
-	nop
 	nop
 	nop
-	nop
-	else
-	andcc	#$ff
-	endif
 
-	sta	$ff22	Change CSS up to 7 more times per line
+	stb	$ff22	Change CSS up to 8 times per line
+	sta	$ff22
 	stb	$ff22
 	stb	$ff22
 	sta	$ff22
@@ -682,22 +551,15 @@ HCVSYNC	tst	$ff00
 	sta	$ff22
 	sta	$ff22
 
-	stb	$ff22	Set CSS for beginning of next line
-
 	tst	$ff00	Wait for next hsync interrupt
 	sync
 
 	nop		Extra delay for beginning of visible line
-	ifeq	NTSC-1
-	nop
 	nop
 	nop
-	nop
-	else
-	andcc	#$ff
-	endif
 
-	sta	$ff22	Change CSS up to 7 more times per line
+	stb	$ff22	Change CSS up to 8 times per line
+	sta	$ff22
 	stb	$ff22
 	stb	$ff22
 	sta	$ff22
@@ -705,22 +567,15 @@ HCVSYNC	tst	$ff00
 	sta	$ff22
 	sta	$ff22
 
-	stb	$ff22	Set CSS for beginning of next line
-
 	tst	$ff00	Wait for next hsync interrupt
 	sync
 
 	nop		Extra delay for beginning of visible line
-	ifeq	NTSC-1
-	nop
 	nop
 	nop
-	nop
-	else
-	andcc	#$ff
-	endif
 
-	sta	$ff22	Change CSS up to 7 more times per line
+	stb	$ff22	Change CSS up to 8 times per line
+	sta	$ff22
 	stb	$ff22
 	stb	$ff22
 	sta	$ff22
@@ -728,22 +583,15 @@ HCVSYNC	tst	$ff00
 	sta	$ff22
 	sta	$ff22
 
-	stb	$ff22	Set CSS for beginning of next line
-
 	tst	$ff00	Wait for next hsync interrupt
 	sync
 
 	nop		Extra delay for beginning of visible line
-	ifeq	NTSC-1
-	nop
 	nop
 	nop
-	nop
-	else
-	andcc	#$ff
-	endif
 
-	sta	$ff22	Change CSS up to 7 more times per line
+	stb	$ff22	Change CSS up to 8 times per line
+	sta	$ff22
 	stb	$ff22
 	stb	$ff22
 	sta	$ff22
@@ -751,22 +599,15 @@ HCVSYNC	tst	$ff00
 	sta	$ff22
 	sta	$ff22
 
-	stb	$ff22	Set CSS for beginning of next line
-
 	tst	$ff00	Wait for next hsync interrupt
 	sync
 
 	nop		Extra delay for beginning of visible line
-	ifeq	NTSC-1
-	nop
 	nop
 	nop
-	nop
-	else
-	andcc	#$ff
-	endif
 
-	sta	$ff22	Change CSS up to 7 more times per line
+	stb	$ff22	Change CSS up to 8 times per line
+	sta	$ff22
 	stb	$ff22
 	stb	$ff22
 	sta	$ff22
@@ -774,22 +615,15 @@ HCVSYNC	tst	$ff00
 	sta	$ff22
 	sta	$ff22
 
-	stb	$ff22	Set CSS for beginning of next line
-
 	tst	$ff00	Wait for next hsync interrupt
 	sync
 
 	nop		Extra delay for beginning of visible line
-	ifeq	NTSC-1
-	nop
 	nop
 	nop
-	nop
-	else
-	andcc	#$ff
-	endif
 
-	sta	$ff22	Change CSS up to 7 more times per line
+	stb	$ff22	Change CSS up to 8 times per line
+	sta	$ff22
 	stb	$ff22
 	stb	$ff22
 	sta	$ff22
@@ -797,22 +631,15 @@ HCVSYNC	tst	$ff00
 	sta	$ff22
 	sta	$ff22
 
-	stb	$ff22	Set CSS for beginning of next line
-
 	tst	$ff00	Wait for next hsync interrupt
 	sync
 
 	nop		Extra delay for beginning of visible line
-	ifeq	NTSC-1
-	nop
 	nop
 	nop
-	nop
-	else
-	andcc	#$ff
-	endif
 
-	sta	$ff22	Change CSS up to 7 more times per line
+	stb	$ff22	Change CSS up to 8 times per line
+	sta	$ff22
 	stb	$ff22
 	stb	$ff22
 	sta	$ff22
@@ -820,22 +647,15 @@ HCVSYNC	tst	$ff00
 	sta	$ff22
 	sta	$ff22
 
-	stb	$ff22	Set CSS for beginning of next line
-
 	tst	$ff00	Wait for next hsync interrupt
 	sync
 
 	nop		Extra delay for beginning of visible line
-	ifeq	NTSC-1
-	nop
 	nop
 	nop
-	nop
-	else
-	andcc	#$ff
-	endif
 
-	sta	$ff22	Change CSS up to 7 more times per line
+	stb	$ff22	Change CSS up to 8 times per line
+	sta	$ff22
 	stb	$ff22
 	stb	$ff22
 	sta	$ff22
@@ -843,22 +663,15 @@ HCVSYNC	tst	$ff00
 	sta	$ff22
 	sta	$ff22
 
-	stb	$ff22	Set CSS for beginning of next line
-
 	tst	$ff00	Wait for next hsync interrupt
 	sync
 
 	nop		Extra delay for beginning of visible line
-	ifeq	NTSC-1
-	nop
 	nop
 	nop
-	nop
-	else
-	andcc	#$ff
-	endif
 
-	sta	$ff22	Change CSS up to 7 more times per line
+	stb	$ff22	Change CSS up to 8 times per line
+	sta	$ff22
 	stb	$ff22
 	stb	$ff22
 	sta	$ff22
@@ -866,22 +679,15 @@ HCVSYNC	tst	$ff00
 	sta	$ff22
 	sta	$ff22
 
-	stb	$ff22	Set CSS for beginning of next line
-
 	tst	$ff00	Wait for next hsync interrupt
 	sync
 
 	nop		Extra delay for beginning of visible line
-	ifeq	NTSC-1
-	nop
 	nop
 	nop
-	nop
-	else
-	andcc	#$ff
-	endif
 
-	sta	$ff22	Change CSS up to 7 more times per line
+	stb	$ff22	Change CSS up to 8 times per line
+	sta	$ff22
 	stb	$ff22
 	stb	$ff22
 	sta	$ff22
@@ -889,22 +695,15 @@ HCVSYNC	tst	$ff00
 	sta	$ff22
 	sta	$ff22
 
-	stb	$ff22	Set CSS for beginning of next line
-
 	tst	$ff00	Wait for next hsync interrupt
 	sync
 
 	nop		Extra delay for beginning of visible line
-	ifeq	NTSC-1
-	nop
 	nop
 	nop
-	nop
-	else
-	andcc	#$ff
-	endif
 
-	sta	$ff22	Change CSS up to 7 more times per line
+	stb	$ff22	Change CSS up to 8 times per line
+	sta	$ff22
 	stb	$ff22
 	stb	$ff22
 	sta	$ff22
@@ -912,22 +711,15 @@ HCVSYNC	tst	$ff00
 	sta	$ff22
 	sta	$ff22
 
-	stb	$ff22	Set CSS for beginning of next line
-
 	tst	$ff00	Wait for next hsync interrupt
 	sync
 
 	nop		Extra delay for beginning of visible line
-	ifeq	NTSC-1
-	nop
 	nop
 	nop
-	nop
-	else
-	andcc	#$ff
-	endif
 
-	sta	$ff22	Change CSS up to 7 more times per line
+	stb	$ff22	Change CSS up to 8 times per line
+	sta	$ff22
 	stb	$ff22
 	stb	$ff22
 	sta	$ff22
@@ -935,22 +727,15 @@ HCVSYNC	tst	$ff00
 	sta	$ff22
 	sta	$ff22
 
-	stb	$ff22	Set CSS for beginning of next line
-
 	tst	$ff00	Wait for next hsync interrupt
 	sync
 
 	nop		Extra delay for beginning of visible line
-	ifeq	NTSC-1
-	nop
 	nop
 	nop
-	nop
-	else
-	andcc	#$ff
-	endif
 
-	sta	$ff22	Change CSS up to 7 more times per line
+	stb	$ff22	Change CSS up to 8 times per line
+	sta	$ff22
 	stb	$ff22
 	stb	$ff22
 	sta	$ff22
@@ -958,22 +743,15 @@ HCVSYNC	tst	$ff00
 	sta	$ff22
 	sta	$ff22
 
-	stb	$ff22	Set CSS for beginning of next line
-
 	tst	$ff00	Wait for next hsync interrupt
 	sync
 
 	nop		Extra delay for beginning of visible line
-	ifeq	NTSC-1
-	nop
 	nop
 	nop
-	nop
-	else
-	andcc	#$ff
-	endif
 
-	sta	$ff22	Change CSS up to 7 more times per line
+	stb	$ff22	Change CSS up to 8 times per line
+	sta	$ff22
 	stb	$ff22
 	stb	$ff22
 	sta	$ff22
@@ -981,22 +759,15 @@ HCVSYNC	tst	$ff00
 	sta	$ff22
 	sta	$ff22
 
-	stb	$ff22	Set CSS for beginning of next line
-
 	tst	$ff00	Wait for next hsync interrupt
 	sync
 
 	nop		Extra delay for beginning of visible line
-	ifeq	NTSC-1
-	nop
 	nop
 	nop
-	nop
-	else
-	andcc	#$ff
-	endif
 
-	sta	$ff22	Change CSS up to 7 more times per line
+	stb	$ff22	Change CSS up to 8 times per line
+	sta	$ff22
 	stb	$ff22
 	stb	$ff22
 	sta	$ff22
@@ -1004,22 +775,15 @@ HCVSYNC	tst	$ff00
 	sta	$ff22
 	sta	$ff22
 
-	stb	$ff22	Set CSS for beginning of next line
-
 	tst	$ff00	Wait for next hsync interrupt
 	sync
 
 	nop		Extra delay for beginning of visible line
-	ifeq	NTSC-1
-	nop
 	nop
 	nop
-	nop
-	else
-	andcc	#$ff
-	endif
 
-	sta	$ff22	Change CSS up to 7 more times per line
+	stb	$ff22	Change CSS up to 8 times per line
+	sta	$ff22
 	stb	$ff22
 	stb	$ff22
 	sta	$ff22
@@ -1027,22 +791,15 @@ HCVSYNC	tst	$ff00
 	sta	$ff22
 	sta	$ff22
 
-	stb	$ff22	Set CSS for beginning of next line
-
 	tst	$ff00	Wait for next hsync interrupt
 	sync
 
 	nop		Extra delay for beginning of visible line
-	ifeq	NTSC-1
-	nop
 	nop
 	nop
-	nop
-	else
-	andcc	#$ff
-	endif
 
-	sta	$ff22	Change CSS up to 7 more times per line
+	stb	$ff22	Change CSS up to 8 times per line
+	sta	$ff22
 	stb	$ff22
 	stb	$ff22
 	sta	$ff22
@@ -1050,22 +807,15 @@ HCVSYNC	tst	$ff00
 	sta	$ff22
 	sta	$ff22
 
-	stb	$ff22	Set CSS for beginning of next line
-
 	tst	$ff00	Wait for next hsync interrupt
 	sync
 
 	nop		Extra delay for beginning of visible line
-	ifeq	NTSC-1
-	nop
 	nop
 	nop
-	nop
-	else
-	andcc	#$ff
-	endif
 
-	sta	$ff22	Change CSS up to 7 more times per line
+	stb	$ff22	Change CSS up to 8 times per line
+	sta	$ff22
 	stb	$ff22
 	stb	$ff22
 	sta	$ff22
@@ -1073,22 +823,15 @@ HCVSYNC	tst	$ff00
 	sta	$ff22
 	sta	$ff22
 
-	stb	$ff22	Set CSS for beginning of next line
-
 	tst	$ff00	Wait for next hsync interrupt
 	sync
 
 	nop		Extra delay for beginning of visible line
-	ifeq	NTSC-1
-	nop
 	nop
 	nop
-	nop
-	else
-	andcc	#$ff
-	endif
 
-	sta	$ff22	Change CSS up to 7 more times per line
+	stb	$ff22	Change CSS up to 8 times per line
+	sta	$ff22
 	stb	$ff22
 	stb	$ff22
 	sta	$ff22
@@ -1096,22 +839,15 @@ HCVSYNC	tst	$ff00
 	sta	$ff22
 	sta	$ff22
 
-	stb	$ff22	Set CSS for beginning of next line
-
 	tst	$ff00	Wait for next hsync interrupt
 	sync
 
 	nop		Extra delay for beginning of visible line
-	ifeq	NTSC-1
-	nop
 	nop
 	nop
-	nop
-	else
-	andcc	#$ff
-	endif
 
-	sta	$ff22	Change CSS up to 7 more times per line
+	stb	$ff22	Change CSS up to 8 times per line
+	sta	$ff22
 	stb	$ff22
 	stb	$ff22
 	sta	$ff22
@@ -1119,22 +855,15 @@ HCVSYNC	tst	$ff00
 	sta	$ff22
 	sta	$ff22
 
-	stb	$ff22	Set CSS for beginning of next line
-
 	tst	$ff00	Wait for next hsync interrupt
 	sync
 
 	nop		Extra delay for beginning of visible line
-	ifeq	NTSC-1
-	nop
 	nop
 	nop
-	nop
-	else
-	andcc	#$ff
-	endif
 
-	sta	$ff22	Change CSS up to 7 more times per line
+	stb	$ff22	Change CSS up to 8 times per line
+	sta	$ff22
 	stb	$ff22
 	stb	$ff22
 	sta	$ff22
@@ -1142,22 +871,15 @@ HCVSYNC	tst	$ff00
 	sta	$ff22
 	sta	$ff22
 
-	stb	$ff22	Set CSS for beginning of next line
-
 	tst	$ff00	Wait for next hsync interrupt
 	sync
 
 	nop		Extra delay for beginning of visible line
-	ifeq	NTSC-1
-	nop
 	nop
 	nop
-	nop
-	else
-	andcc	#$ff
-	endif
 
-	sta	$ff22	Change CSS up to 7 more times per line
+	stb	$ff22	Change CSS up to 8 times per line
+	sta	$ff22
 	stb	$ff22
 	stb	$ff22
 	sta	$ff22
@@ -1165,22 +887,15 @@ HCVSYNC	tst	$ff00
 	sta	$ff22
 	sta	$ff22
 
-	stb	$ff22	Set CSS for beginning of next line
-
 	tst	$ff00	Wait for next hsync interrupt
 	sync
 
 	nop		Extra delay for beginning of visible line
-	ifeq	NTSC-1
-	nop
 	nop
 	nop
-	nop
-	else
-	andcc	#$ff
-	endif
 
-	sta	$ff22	Change CSS up to 7 more times per line
+	stb	$ff22	Change CSS up to 8 times per line
+	sta	$ff22
 	stb	$ff22
 	stb	$ff22
 	sta	$ff22
@@ -1188,22 +903,15 @@ HCVSYNC	tst	$ff00
 	sta	$ff22
 	sta	$ff22
 
-	stb	$ff22	Set CSS for beginning of next line
-
 	tst	$ff00	Wait for next hsync interrupt
 	sync
 
 	nop		Extra delay for beginning of visible line
-	ifeq	NTSC-1
-	nop
 	nop
 	nop
-	nop
-	else
-	andcc	#$ff
-	endif
 
-	sta	$ff22	Change CSS up to 7 more times per line
+	stb	$ff22	Change CSS up to 8 times per line
+	sta	$ff22
 	stb	$ff22
 	stb	$ff22
 	sta	$ff22
@@ -1211,22 +919,15 @@ HCVSYNC	tst	$ff00
 	sta	$ff22
 	sta	$ff22
 
-	stb	$ff22	Set CSS for beginning of next line
-
 	tst	$ff00	Wait for next hsync interrupt
 	sync
 
 	nop		Extra delay for beginning of visible line
-	ifeq	NTSC-1
-	nop
 	nop
 	nop
-	nop
-	else
-	andcc	#$ff
-	endif
 
-	sta	$ff22	Change CSS up to 7 more times per line
+	stb	$ff22	Change CSS up to 8 times per line
+	sta	$ff22
 	stb	$ff22
 	stb	$ff22
 	sta	$ff22
@@ -1234,22 +935,15 @@ HCVSYNC	tst	$ff00
 	sta	$ff22
 	sta	$ff22
 
-	stb	$ff22	Set CSS for beginning of next line
-
 	tst	$ff00	Wait for next hsync interrupt
 	sync
 
 	nop		Extra delay for beginning of visible line
-	ifeq	NTSC-1
-	nop
 	nop
 	nop
-	nop
-	else
-	andcc	#$ff
-	endif
 
-	sta	$ff22	Change CSS up to 7 more times per line
+	stb	$ff22	Change CSS up to 8 times per line
+	sta	$ff22
 	stb	$ff22
 	stb	$ff22
 	sta	$ff22
@@ -1257,22 +951,15 @@ HCVSYNC	tst	$ff00
 	sta	$ff22
 	sta	$ff22
 
-	stb	$ff22	Set CSS for beginning of next line
-
 	tst	$ff00	Wait for next hsync interrupt
 	sync
 
 	nop		Extra delay for beginning of visible line
-	ifeq	NTSC-1
-	nop
 	nop
 	nop
-	nop
-	else
-	andcc	#$ff
-	endif
 
-	sta	$ff22	Change CSS up to 7 more times per line
+	stb	$ff22	Change CSS up to 8 times per line
+	sta	$ff22
 	stb	$ff22
 	stb	$ff22
 	sta	$ff22
@@ -1280,22 +967,15 @@ HCVSYNC	tst	$ff00
 	sta	$ff22
 	sta	$ff22
 
-	stb	$ff22	Set CSS for beginning of next line
-
 	tst	$ff00	Wait for next hsync interrupt
 	sync
 
 	nop		Extra delay for beginning of visible line
-	ifeq	NTSC-1
-	nop
 	nop
 	nop
-	nop
-	else
-	andcc	#$ff
-	endif
 
-	sta	$ff22	Change CSS up to 7 more times per line
+	stb	$ff22	Change CSS up to 8 times per line
+	sta	$ff22
 	stb	$ff22
 	stb	$ff22
 	sta	$ff22
@@ -1303,22 +983,15 @@ HCVSYNC	tst	$ff00
 	sta	$ff22
 	sta	$ff22
 
-	stb	$ff22	Set CSS for beginning of next line
-
 	tst	$ff00	Wait for next hsync interrupt
 	sync
 
 	nop		Extra delay for beginning of visible line
-	ifeq	NTSC-1
-	nop
 	nop
 	nop
-	nop
-	else
-	andcc	#$ff
-	endif
 
-	sta	$ff22	Change CSS up to 7 more times per line
+	stb	$ff22	Change CSS up to 8 times per line
+	sta	$ff22
 	stb	$ff22
 	stb	$ff22
 	sta	$ff22
@@ -1326,22 +999,15 @@ HCVSYNC	tst	$ff00
 	sta	$ff22
 	sta	$ff22
 
-	stb	$ff22	Set CSS for beginning of next line
-
 	tst	$ff00	Wait for next hsync interrupt
 	sync
 
 	nop		Extra delay for beginning of visible line
-	ifeq	NTSC-1
-	nop
 	nop
 	nop
-	nop
-	else
-	andcc	#$ff
-	endif
 
-	sta	$ff22	Change CSS up to 7 more times per line
+	stb	$ff22	Change CSS up to 8 times per line
+	sta	$ff22
 	stb	$ff22
 	stb	$ff22
 	sta	$ff22
@@ -1349,22 +1015,15 @@ HCVSYNC	tst	$ff00
 	sta	$ff22
 	sta	$ff22
 
-	stb	$ff22	Set CSS for beginning of next line
-
 	tst	$ff00	Wait for next hsync interrupt
 	sync
 
 	nop		Extra delay for beginning of visible line
-	ifeq	NTSC-1
-	nop
 	nop
 	nop
-	nop
-	else
-	andcc	#$ff
-	endif
 
-	sta	$ff22	Change CSS up to 7 more times per line
+	stb	$ff22	Change CSS up to 8 times per line
+	sta	$ff22
 	stb	$ff22
 	stb	$ff22
 	sta	$ff22
@@ -1372,22 +1031,15 @@ HCVSYNC	tst	$ff00
 	sta	$ff22
 	sta	$ff22
 
-	stb	$ff22	Set CSS for beginning of next line
-
 	tst	$ff00	Wait for next hsync interrupt
 	sync
 
 	nop		Extra delay for beginning of visible line
-	ifeq	NTSC-1
-	nop
 	nop
 	nop
-	nop
-	else
-	andcc	#$ff
-	endif
 
-	sta	$ff22	Change CSS up to 7 more times per line
+	stb	$ff22	Change CSS up to 8 times per line
+	sta	$ff22
 	stb	$ff22
 	stb	$ff22
 	sta	$ff22
@@ -1395,22 +1047,15 @@ HCVSYNC	tst	$ff00
 	sta	$ff22
 	sta	$ff22
 
-	stb	$ff22	Set CSS for beginning of next line
-
 	tst	$ff00	Wait for next hsync interrupt
 	sync
 
 	nop		Extra delay for beginning of visible line
-	ifeq	NTSC-1
-	nop
 	nop
 	nop
-	nop
-	else
-	andcc	#$ff
-	endif
 
-	sta	$ff22	Change CSS up to 7 more times per line
+	stb	$ff22	Change CSS up to 8 times per line
+	sta	$ff22
 	stb	$ff22
 	stb	$ff22
 	sta	$ff22
@@ -1418,22 +1063,15 @@ HCVSYNC	tst	$ff00
 	sta	$ff22
 	sta	$ff22
 
-	stb	$ff22	Set CSS for beginning of next line
-
 	tst	$ff00	Wait for next hsync interrupt
 	sync
 
 	nop		Extra delay for beginning of visible line
-	ifeq	NTSC-1
-	nop
 	nop
 	nop
-	nop
-	else
-	andcc	#$ff
-	endif
 
-	sta	$ff22	Change CSS up to 7 more times per line
+	stb	$ff22	Change CSS up to 8 times per line
+	sta	$ff22
 	stb	$ff22
 	stb	$ff22
 	sta	$ff22
@@ -1441,22 +1079,15 @@ HCVSYNC	tst	$ff00
 	sta	$ff22
 	sta	$ff22
 
-	stb	$ff22	Set CSS for beginning of next line
-
 	tst	$ff00	Wait for next hsync interrupt
 	sync
 
 	nop		Extra delay for beginning of visible line
-	ifeq	NTSC-1
-	nop
 	nop
 	nop
-	nop
-	else
-	andcc	#$ff
-	endif
 
-	sta	$ff22	Change CSS up to 7 more times per line
+	stb	$ff22	Change CSS up to 8 times per line
+	sta	$ff22
 	stb	$ff22
 	stb	$ff22
 	sta	$ff22
@@ -1464,22 +1095,15 @@ HCVSYNC	tst	$ff00
 	sta	$ff22
 	sta	$ff22
 
-	stb	$ff22	Set CSS for beginning of next line
-
 	tst	$ff00	Wait for next hsync interrupt
 	sync
 
 	nop		Extra delay for beginning of visible line
-	ifeq	NTSC-1
-	nop
 	nop
 	nop
-	nop
-	else
-	andcc	#$ff
-	endif
 
-	sta	$ff22	Change CSS up to 7 more times per line
+	stb	$ff22	Change CSS up to 8 times per line
+	sta	$ff22
 	stb	$ff22
 	stb	$ff22
 	sta	$ff22
@@ -1487,22 +1111,15 @@ HCVSYNC	tst	$ff00
 	sta	$ff22
 	sta	$ff22
 
-	stb	$ff22	Set CSS for beginning of next line
-
 	tst	$ff00	Wait for next hsync interrupt
 	sync
 
 	nop		Extra delay for beginning of visible line
-	ifeq	NTSC-1
-	nop
 	nop
 	nop
-	nop
-	else
-	andcc	#$ff
-	endif
 
-	sta	$ff22	Change CSS up to 7 more times per line
+	stb	$ff22	Change CSS up to 8 times per line
+	sta	$ff22
 	stb	$ff22
 	stb	$ff22
 	sta	$ff22
@@ -1510,22 +1127,15 @@ HCVSYNC	tst	$ff00
 	sta	$ff22
 	sta	$ff22
 
-	stb	$ff22	Set CSS for beginning of next line
-
 	tst	$ff00	Wait for next hsync interrupt
 	sync
 
 	nop		Extra delay for beginning of visible line
-	ifeq	NTSC-1
-	nop
 	nop
 	nop
-	nop
-	else
-	andcc	#$ff
-	endif
 
-	sta	$ff22	Change CSS up to 7 more times per line
+	stb	$ff22	Change CSS up to 8 times per line
+	sta	$ff22
 	stb	$ff22
 	stb	$ff22
 	sta	$ff22
@@ -1533,22 +1143,15 @@ HCVSYNC	tst	$ff00
 	sta	$ff22
 	sta	$ff22
 
-	stb	$ff22	Set CSS for beginning of next line
-
 	tst	$ff00	Wait for next hsync interrupt
 	sync
 
 	nop		Extra delay for beginning of visible line
-	ifeq	NTSC-1
-	nop
 	nop
 	nop
-	nop
-	else
-	andcc	#$ff
-	endif
 
-	sta	$ff22	Change CSS up to 7 more times per line
+	stb	$ff22	Change CSS up to 8 times per line
+	sta	$ff22
 	stb	$ff22
 	stb	$ff22
 	sta	$ff22
@@ -1556,22 +1159,15 @@ HCVSYNC	tst	$ff00
 	sta	$ff22
 	sta	$ff22
 
-	stb	$ff22	Set CSS for beginning of next line
-
 	tst	$ff00	Wait for next hsync interrupt
 	sync
 
 	nop		Extra delay for beginning of visible line
-	ifeq	NTSC-1
-	nop
 	nop
 	nop
-	nop
-	else
-	andcc	#$ff
-	endif
 
-	sta	$ff22	Change CSS up to 7 more times per line
+	stb	$ff22	Change CSS up to 8 times per line
+	sta	$ff22
 	stb	$ff22
 	stb	$ff22
 	sta	$ff22
@@ -1579,22 +1175,15 @@ HCVSYNC	tst	$ff00
 	sta	$ff22
 	sta	$ff22
 
-	stb	$ff22	Set CSS for beginning of next line
-
 	tst	$ff00	Wait for next hsync interrupt
 	sync
 
 	nop		Extra delay for beginning of visible line
-	ifeq	NTSC-1
-	nop
 	nop
 	nop
-	nop
-	else
-	andcc	#$ff
-	endif
 
-	sta	$ff22	Change CSS up to 7 more times per line
+	stb	$ff22	Change CSS up to 8 times per line
+	sta	$ff22
 	stb	$ff22
 	stb	$ff22
 	sta	$ff22
@@ -1602,22 +1191,15 @@ HCVSYNC	tst	$ff00
 	sta	$ff22
 	sta	$ff22
 
-	stb	$ff22	Set CSS for beginning of next line
-
 	tst	$ff00	Wait for next hsync interrupt
 	sync
 
 	nop		Extra delay for beginning of visible line
-	ifeq	NTSC-1
-	nop
 	nop
 	nop
-	nop
-	else
-	andcc	#$ff
-	endif
 
-	sta	$ff22	Change CSS up to 7 more times per line
+	stb	$ff22	Change CSS up to 8 times per line
+	sta	$ff22
 	stb	$ff22
 	stb	$ff22
 	sta	$ff22
@@ -1625,22 +1207,15 @@ HCVSYNC	tst	$ff00
 	sta	$ff22
 	sta	$ff22
 
-	stb	$ff22	Set CSS for beginning of next line
-
 	tst	$ff00	Wait for next hsync interrupt
 	sync
 
 	nop		Extra delay for beginning of visible line
-	ifeq	NTSC-1
-	nop
 	nop
 	nop
-	nop
-	else
-	andcc	#$ff
-	endif
 
-	sta	$ff22	Change CSS up to 7 more times per line
+	stb	$ff22	Change CSS up to 8 times per line
+	sta	$ff22
 	stb	$ff22
 	stb	$ff22
 	sta	$ff22
@@ -1648,22 +1223,15 @@ HCVSYNC	tst	$ff00
 	sta	$ff22
 	sta	$ff22
 
-	stb	$ff22	Set CSS for beginning of next line
-
 	tst	$ff00	Wait for next hsync interrupt
 	sync
 
 	nop		Extra delay for beginning of visible line
-	ifeq	NTSC-1
-	nop
 	nop
 	nop
-	nop
-	else
-	andcc	#$ff
-	endif
 
-	sta	$ff22	Change CSS up to 7 more times per line
+	stb	$ff22	Change CSS up to 8 times per line
+	sta	$ff22
 	stb	$ff22
 	stb	$ff22
 	sta	$ff22
@@ -1671,22 +1239,15 @@ HCVSYNC	tst	$ff00
 	sta	$ff22
 	sta	$ff22
 
-	stb	$ff22	Set CSS for beginning of next line
-
 	tst	$ff00	Wait for next hsync interrupt
 	sync
 
 	nop		Extra delay for beginning of visible line
-	ifeq	NTSC-1
-	nop
 	nop
 	nop
-	nop
-	else
-	andcc	#$ff
-	endif
 
-	sta	$ff22	Change CSS up to 7 more times per line
+	stb	$ff22	Change CSS up to 8 times per line
+	sta	$ff22
 	stb	$ff22
 	stb	$ff22
 	sta	$ff22
@@ -1694,22 +1255,15 @@ HCVSYNC	tst	$ff00
 	sta	$ff22
 	sta	$ff22
 
-	stb	$ff22	Set CSS for beginning of next line
-
 	tst	$ff00	Wait for next hsync interrupt
 	sync
 
 	nop		Extra delay for beginning of visible line
-	ifeq	NTSC-1
-	nop
 	nop
 	nop
-	nop
-	else
-	andcc	#$ff
-	endif
 
-	sta	$ff22	Change CSS up to 7 more times per line
+	stb	$ff22	Change CSS up to 8 times per line
+	sta	$ff22
 	stb	$ff22
 	stb	$ff22
 	sta	$ff22
@@ -1717,22 +1271,15 @@ HCVSYNC	tst	$ff00
 	sta	$ff22
 	sta	$ff22
 
-	stb	$ff22	Set CSS for beginning of next line
-
 	tst	$ff00	Wait for next hsync interrupt
 	sync
 
 	nop		Extra delay for beginning of visible line
-	ifeq	NTSC-1
-	nop
 	nop
 	nop
-	nop
-	else
-	andcc	#$ff
-	endif
 
-	sta	$ff22	Change CSS up to 7 more times per line
+	stb	$ff22	Change CSS up to 8 times per line
+	sta	$ff22
 	stb	$ff22
 	stb	$ff22
 	sta	$ff22
@@ -1740,22 +1287,15 @@ HCVSYNC	tst	$ff00
 	sta	$ff22
 	sta	$ff22
 
-	stb	$ff22	Set CSS for beginning of next line
-
 	tst	$ff00	Wait for next hsync interrupt
 	sync
 
 	nop		Extra delay for beginning of visible line
-	ifeq	NTSC-1
-	nop
 	nop
 	nop
-	nop
-	else
-	andcc	#$ff
-	endif
 
-	sta	$ff22	Change CSS up to 7 more times per line
+	stb	$ff22	Change CSS up to 8 times per line
+	sta	$ff22
 	stb	$ff22
 	stb	$ff22
 	sta	$ff22
@@ -1763,45 +1303,31 @@ HCVSYNC	tst	$ff00
 	sta	$ff22
 	sta	$ff22
 
-	stb	$ff22	Set CSS for beginning of next line
-
 	tst	$ff00	Wait for next hsync interrupt
 	sync
 
 	nop		Extra delay for beginning of visible line
-	ifeq	NTSC-1
-	nop
 	nop
 	nop
-	nop
-	else
-	andcc	#$ff
-	endif
 
-	sta	$ff22	Change CSS up to 7 more times per line
+	stb	$ff22	Change CSS up to 8 times per line
+	sta	$ff22
 	stb	$ff22
 	stb	$ff22
 	sta	$ff22
 	stb	$ff22
 	sta	$ff22
 	sta	$ff22
-
-	stb	$ff22	Set CSS for beginning of next line
 
 	tst	$ff00	Wait for next hsync interrupt
 	sync
 
 	nop		Extra delay for beginning of visible line
-	ifeq	NTSC-1
 	nop
 	nop
-	nop
-	nop
-	else
-	andcc	#$ff
-	endif
 
-	sta	$ff22	Change CSS up to 7 more times per line
+	stb	$ff22	Change CSS up to 8 times per line
+	sta	$ff22
 	stb	$ff22
 	stb	$ff22
 	sta	$ff22
@@ -1809,22 +1335,15 @@ HCVSYNC	tst	$ff00
 	sta	$ff22
 	sta	$ff22
 
-	stb	$ff22	Set CSS for beginning of next line
-
 	tst	$ff00	Wait for next hsync interrupt
 	sync
 
 	nop		Extra delay for beginning of visible line
-	ifeq	NTSC-1
-	nop
 	nop
 	nop
-	nop
-	else
-	andcc	#$ff
-	endif
 
-	sta	$ff22	Change CSS up to 7 more times per line
+	stb	$ff22	Change CSS up to 8 times per line
+	sta	$ff22
 	stb	$ff22
 	stb	$ff22
 	sta	$ff22
@@ -1832,22 +1351,15 @@ HCVSYNC	tst	$ff00
 	sta	$ff22
 	sta	$ff22
 
-	stb	$ff22	Set CSS for beginning of next line
-
 	tst	$ff00	Wait for next hsync interrupt
 	sync
 
 	nop		Extra delay for beginning of visible line
-	ifeq	NTSC-1
-	nop
 	nop
 	nop
-	nop
-	else
-	andcc	#$ff
-	endif
 
-	sta	$ff22	Change CSS up to 7 more times per line
+	stb	$ff22	Change CSS up to 8 times per line
+	sta	$ff22
 	stb	$ff22
 	stb	$ff22
 	sta	$ff22
@@ -1855,22 +1367,15 @@ HCVSYNC	tst	$ff00
 	sta	$ff22
 	sta	$ff22
 
-	stb	$ff22	Set CSS for beginning of next line
-
 	tst	$ff00	Wait for next hsync interrupt
 	sync
 
 	nop		Extra delay for beginning of visible line
-	ifeq	NTSC-1
-	nop
 	nop
 	nop
-	nop
-	else
-	andcc	#$ff
-	endif
 
-	sta	$ff22	Change CSS up to 7 more times per line
+	stb	$ff22	Change CSS up to 8 times per line
+	sta	$ff22
 	stb	$ff22
 	stb	$ff22
 	sta	$ff22
@@ -1878,22 +1383,15 @@ HCVSYNC	tst	$ff00
 	sta	$ff22
 	sta	$ff22
 
-	stb	$ff22	Set CSS for beginning of next line
-
 	tst	$ff00	Wait for next hsync interrupt
 	sync
 
 	nop		Extra delay for beginning of visible line
-	ifeq	NTSC-1
-	nop
 	nop
 	nop
-	nop
-	else
-	andcc	#$ff
-	endif
 
-	sta	$ff22	Change CSS up to 7 more times per line
+	stb	$ff22	Change CSS up to 8 times per line
+	sta	$ff22
 	stb	$ff22
 	stb	$ff22
 	sta	$ff22
@@ -1901,22 +1399,15 @@ HCVSYNC	tst	$ff00
 	sta	$ff22
 	sta	$ff22
 
-	stb	$ff22	Set CSS for beginning of next line
-
 	tst	$ff00	Wait for next hsync interrupt
 	sync
 
 	nop		Extra delay for beginning of visible line
-	ifeq	NTSC-1
-	nop
 	nop
 	nop
-	nop
-	else
-	andcc	#$ff
-	endif
 
-	sta	$ff22	Change CSS up to 7 more times per line
+	stb	$ff22	Change CSS up to 8 times per line
+	sta	$ff22
 	stb	$ff22
 	stb	$ff22
 	sta	$ff22
@@ -1924,22 +1415,15 @@ HCVSYNC	tst	$ff00
 	sta	$ff22
 	sta	$ff22
 
-	stb	$ff22	Set CSS for beginning of next line
-
 	tst	$ff00	Wait for next hsync interrupt
 	sync
 
 	nop		Extra delay for beginning of visible line
-	ifeq	NTSC-1
-	nop
 	nop
 	nop
-	nop
-	else
-	andcc	#$ff
-	endif
 
-	sta	$ff22	Change CSS up to 7 more times per line
+	stb	$ff22	Change CSS up to 8 times per line
+	sta	$ff22
 	stb	$ff22
 	stb	$ff22
 	sta	$ff22
@@ -1947,22 +1431,15 @@ HCVSYNC	tst	$ff00
 	sta	$ff22
 	sta	$ff22
 
-	stb	$ff22	Set CSS for beginning of next line
-
 	tst	$ff00	Wait for next hsync interrupt
 	sync
 
 	nop		Extra delay for beginning of visible line
-	ifeq	NTSC-1
-	nop
 	nop
 	nop
-	nop
-	else
-	andcc	#$ff
-	endif
 
-	sta	$ff22	Change CSS up to 7 more times per line
+	stb	$ff22	Change CSS up to 8 times per line
+	sta	$ff22
 	stb	$ff22
 	stb	$ff22
 	sta	$ff22
@@ -1970,22 +1447,15 @@ HCVSYNC	tst	$ff00
 	sta	$ff22
 	sta	$ff22
 
-	stb	$ff22	Set CSS for beginning of next line
-
 	tst	$ff00	Wait for next hsync interrupt
 	sync
 
 	nop		Extra delay for beginning of visible line
-	ifeq	NTSC-1
-	nop
 	nop
 	nop
-	nop
-	else
-	andcc	#$ff
-	endif
 
-	sta	$ff22	Change CSS up to 7 more times per line
+	stb	$ff22	Change CSS up to 8 times per line
+	sta	$ff22
 	stb	$ff22
 	stb	$ff22
 	sta	$ff22
@@ -1993,22 +1463,15 @@ HCVSYNC	tst	$ff00
 	sta	$ff22
 	sta	$ff22
 
-	stb	$ff22	Set CSS for beginning of next line
-
 	tst	$ff00	Wait for next hsync interrupt
 	sync
 
 	nop		Extra delay for beginning of visible line
-	ifeq	NTSC-1
-	nop
 	nop
 	nop
-	nop
-	else
-	andcc	#$ff
-	endif
 
-	sta	$ff22	Change CSS up to 7 more times per line
+	stb	$ff22	Change CSS up to 8 times per line
+	sta	$ff22
 	stb	$ff22
 	stb	$ff22
 	sta	$ff22
@@ -2016,22 +1479,15 @@ HCVSYNC	tst	$ff00
 	sta	$ff22
 	sta	$ff22
 
-	stb	$ff22	Set CSS for beginning of next line
-
 	tst	$ff00	Wait for next hsync interrupt
 	sync
 
 	nop		Extra delay for beginning of visible line
-	ifeq	NTSC-1
-	nop
 	nop
 	nop
-	nop
-	else
-	andcc	#$ff
-	endif
 
-	sta	$ff22	Change CSS up to 7 more times per line
+	stb	$ff22	Change CSS up to 8 times per line
+	sta	$ff22
 	stb	$ff22
 	stb	$ff22
 	sta	$ff22
@@ -2039,22 +1495,15 @@ HCVSYNC	tst	$ff00
 	sta	$ff22
 	sta	$ff22
 
-	stb	$ff22	Set CSS for beginning of next line
-
 	tst	$ff00	Wait for next hsync interrupt
 	sync
 
 	nop		Extra delay for beginning of visible line
-	ifeq	NTSC-1
-	nop
 	nop
 	nop
-	nop
-	else
-	andcc	#$ff
-	endif
 
-	sta	$ff22	Change CSS up to 7 more times per line
+	stb	$ff22	Change CSS up to 8 times per line
+	sta	$ff22
 	stb	$ff22
 	stb	$ff22
 	sta	$ff22
@@ -2062,22 +1511,15 @@ HCVSYNC	tst	$ff00
 	sta	$ff22
 	sta	$ff22
 
-	stb	$ff22	Set CSS for beginning of next line
-
 	tst	$ff00	Wait for next hsync interrupt
 	sync
 
 	nop		Extra delay for beginning of visible line
-	ifeq	NTSC-1
-	nop
 	nop
 	nop
-	nop
-	else
-	andcc	#$ff
-	endif
 
-	sta	$ff22	Change CSS up to 7 more times per line
+	stb	$ff22	Change CSS up to 8 times per line
+	sta	$ff22
 	stb	$ff22
 	stb	$ff22
 	sta	$ff22
@@ -2085,22 +1527,15 @@ HCVSYNC	tst	$ff00
 	sta	$ff22
 	sta	$ff22
 
-	stb	$ff22	Set CSS for beginning of next line
-
 	tst	$ff00	Wait for next hsync interrupt
 	sync
 
 	nop		Extra delay for beginning of visible line
-	ifeq	NTSC-1
-	nop
 	nop
 	nop
-	nop
-	else
-	andcc	#$ff
-	endif
 
-	sta	$ff22	Change CSS up to 7 more times per line
+	stb	$ff22	Change CSS up to 8 times per line
+	sta	$ff22
 	stb	$ff22
 	stb	$ff22
 	sta	$ff22
@@ -2108,22 +1543,15 @@ HCVSYNC	tst	$ff00
 	sta	$ff22
 	sta	$ff22
 
-	stb	$ff22	Set CSS for beginning of next line
-
 	tst	$ff00	Wait for next hsync interrupt
 	sync
 
 	nop		Extra delay for beginning of visible line
-	ifeq	NTSC-1
-	nop
 	nop
 	nop
-	nop
-	else
-	andcc	#$ff
-	endif
 
-	sta	$ff22	Change CSS up to 7 more times per line
+	stb	$ff22	Change CSS up to 8 times per line
+	sta	$ff22
 	stb	$ff22
 	stb	$ff22
 	sta	$ff22
@@ -2131,22 +1559,15 @@ HCVSYNC	tst	$ff00
 	sta	$ff22
 	sta	$ff22
 
-	stb	$ff22	Set CSS for beginning of next line
-
 	tst	$ff00	Wait for next hsync interrupt
 	sync
 
 	nop		Extra delay for beginning of visible line
-	ifeq	NTSC-1
-	nop
 	nop
 	nop
-	nop
-	else
-	andcc	#$ff
-	endif
 
-	sta	$ff22	Change CSS up to 7 more times per line
+	stb	$ff22	Change CSS up to 8 times per line
+	sta	$ff22
 	stb	$ff22
 	stb	$ff22
 	sta	$ff22
@@ -2154,367 +1575,255 @@ HCVSYNC	tst	$ff00
 	sta	$ff22
 	sta	$ff22
 
-	stb	$ff22	Set CSS for beginning of next line
-
 	tst	$ff00	Wait for next hsync interrupt
 	sync
 
 	nop		Extra delay for beginning of visible line
-	ifeq	NTSC-1
-	nop
-	nop
 	nop
 	nop
-	else
-	andcc	#$ff
-	endif
 
-	sta	$ff22	Change CSS up to 7 more times per line
+	stb	$ff22	Change CSS up to 8 times per line
+	sta	$ff22
 	stb	$ff22
 	stb	$ff22
 	sta	$ff22
 	stb	$ff22
 	sta	$ff22
 	sta	$ff22
-
-	stb	$ff22	Set CSS for beginning of next line
 
 	tst	$ff00	Wait for next hsync interrupt
 	sync
 
 	nop		Extra delay for beginning of visible line
-	ifeq	NTSC-1
-	nop
-	nop
 	nop
 	nop
-	else
-	andcc	#$ff
-	endif
 
-	sta	$ff22	Change CSS up to 7 more times per line
+	stb	$ff22	Change CSS up to 8 times per line
+	sta	$ff22
 	stb	$ff22
 	stb	$ff22
 	sta	$ff22
 	stb	$ff22
 	sta	$ff22
 	sta	$ff22
-
-	stb	$ff22	Set CSS for beginning of next line
 
 	tst	$ff00	Wait for next hsync interrupt
 	sync
 
 	nop		Extra delay for beginning of visible line
-	ifeq	NTSC-1
-	nop
-	nop
 	nop
 	nop
-	else
-	andcc	#$ff
-	endif
 
-	sta	$ff22	Change CSS up to 7 more times per line
+	stb	$ff22	Change CSS up to 8 times per line
+	sta	$ff22
 	stb	$ff22
 	stb	$ff22
 	sta	$ff22
 	stb	$ff22
 	sta	$ff22
 	sta	$ff22
-
-	stb	$ff22	Set CSS for beginning of next line
 
 	tst	$ff00	Wait for next hsync interrupt
 	sync
 
 	nop		Extra delay for beginning of visible line
-	ifeq	NTSC-1
-	nop
-	nop
 	nop
 	nop
-	else
-	andcc	#$ff
-	endif
 
-	sta	$ff22	Change CSS up to 7 more times per line
+	stb	$ff22	Change CSS up to 8 times per line
+	sta	$ff22
 	stb	$ff22
 	stb	$ff22
 	sta	$ff22
 	stb	$ff22
 	sta	$ff22
 	sta	$ff22
-
-	stb	$ff22	Set CSS for beginning of next line
 
 	tst	$ff00	Wait for next hsync interrupt
 	sync
 
 	nop		Extra delay for beginning of visible line
-	ifeq	NTSC-1
-	nop
-	nop
 	nop
 	nop
-	else
-	andcc	#$ff
-	endif
 
-	sta	$ff22	Change CSS up to 7 more times per line
+	stb	$ff22	Change CSS up to 8 times per line
+	sta	$ff22
 	stb	$ff22
 	stb	$ff22
 	sta	$ff22
 	stb	$ff22
 	sta	$ff22
 	sta	$ff22
-
-	stb	$ff22	Set CSS for beginning of next line
 
 	tst	$ff00	Wait for next hsync interrupt
 	sync
 
 	nop		Extra delay for beginning of visible line
-	ifeq	NTSC-1
-	nop
-	nop
 	nop
 	nop
-	else
-	andcc	#$ff
-	endif
 
-	sta	$ff22	Change CSS up to 7 more times per line
+	stb	$ff22	Change CSS up to 8 times per line
+	sta	$ff22
 	stb	$ff22
 	stb	$ff22
 	sta	$ff22
 	stb	$ff22
 	sta	$ff22
 	sta	$ff22
-
-	stb	$ff22	Set CSS for beginning of next line
 
 	tst	$ff00	Wait for next hsync interrupt
 	sync
 
 	nop		Extra delay for beginning of visible line
-	ifeq	NTSC-1
-	nop
-	nop
 	nop
 	nop
-	else
-	andcc	#$ff
-	endif
 
-	sta	$ff22	Change CSS up to 7 more times per line
+	stb	$ff22	Change CSS up to 8 times per line
+	sta	$ff22
 	stb	$ff22
 	stb	$ff22
 	sta	$ff22
 	stb	$ff22
 	sta	$ff22
 	sta	$ff22
-
-	stb	$ff22	Set CSS for beginning of next line
 
 	tst	$ff00	Wait for next hsync interrupt
 	sync
 
 	nop		Extra delay for beginning of visible line
-	ifeq	NTSC-1
-	nop
-	nop
 	nop
 	nop
-	else
-	andcc	#$ff
-	endif
 
-	sta	$ff22	Change CSS up to 7 more times per line
+	stb	$ff22	Change CSS up to 8 times per line
+	sta	$ff22
 	stb	$ff22
 	stb	$ff22
 	sta	$ff22
 	stb	$ff22
 	sta	$ff22
 	sta	$ff22
-
-	stb	$ff22	Set CSS for beginning of next line
 
 	tst	$ff00	Wait for next hsync interrupt
 	sync
 
 	nop		Extra delay for beginning of visible line
-	ifeq	NTSC-1
-	nop
-	nop
 	nop
 	nop
-	else
-	andcc	#$ff
-	endif
 
-	sta	$ff22	Change CSS up to 7 more times per line
+	stb	$ff22	Change CSS up to 8 times per line
+	sta	$ff22
 	stb	$ff22
 	stb	$ff22
 	sta	$ff22
 	stb	$ff22
 	sta	$ff22
 	sta	$ff22
-
-	stb	$ff22	Set CSS for beginning of next line
 
 	tst	$ff00	Wait for next hsync interrupt
 	sync
 
 	nop		Extra delay for beginning of visible line
-	ifeq	NTSC-1
-	nop
-	nop
 	nop
 	nop
-	else
-	andcc	#$ff
-	endif
 
-	sta	$ff22	Change CSS up to 7 more times per line
+	stb	$ff22	Change CSS up to 8 times per line
+	sta	$ff22
 	stb	$ff22
 	stb	$ff22
 	sta	$ff22
 	stb	$ff22
 	sta	$ff22
 	sta	$ff22
-
-	stb	$ff22	Set CSS for beginning of next line
 
 	tst	$ff00	Wait for next hsync interrupt
 	sync
 
 	nop		Extra delay for beginning of visible line
-	ifeq	NTSC-1
-	nop
-	nop
 	nop
 	nop
-	else
-	andcc	#$ff
-	endif
 
-	sta	$ff22	Change CSS up to 7 more times per line
+	stb	$ff22	Change CSS up to 8 times per line
+	sta	$ff22
 	stb	$ff22
 	stb	$ff22
 	sta	$ff22
 	stb	$ff22
 	sta	$ff22
 	sta	$ff22
-
-	stb	$ff22	Set CSS for beginning of next line
 
 	tst	$ff00	Wait for next hsync interrupt
 	sync
 
 	nop		Extra delay for beginning of visible line
-	ifeq	NTSC-1
-	nop
-	nop
 	nop
 	nop
-	else
-	andcc	#$ff
-	endif
 
-	sta	$ff22	Change CSS up to 7 more times per line
+	stb	$ff22	Change CSS up to 8 times per line
+	sta	$ff22
 	stb	$ff22
 	stb	$ff22
 	sta	$ff22
 	stb	$ff22
 	sta	$ff22
 	sta	$ff22
-
-	stb	$ff22	Set CSS for beginning of next line
 
 	tst	$ff00	Wait for next hsync interrupt
 	sync
 
 	nop		Extra delay for beginning of visible line
-	ifeq	NTSC-1
-	nop
-	nop
 	nop
 	nop
-	else
-	andcc	#$ff
-	endif
 
-	sta	$ff22	Change CSS up to 7 more times per line
+	stb	$ff22	Change CSS up to 8 times per line
+	sta	$ff22
 	stb	$ff22
 	stb	$ff22
 	sta	$ff22
 	stb	$ff22
 	sta	$ff22
 	sta	$ff22
-
-	stb	$ff22	Set CSS for beginning of next line
 
 	tst	$ff00	Wait for next hsync interrupt
 	sync
 
 	nop		Extra delay for beginning of visible line
-	ifeq	NTSC-1
-	nop
-	nop
 	nop
 	nop
-	else
-	andcc	#$ff
-	endif
 
-	sta	$ff22	Change CSS up to 7 more times per line
+	stb	$ff22	Change CSS up to 8 times per line
+	sta	$ff22
 	stb	$ff22
 	stb	$ff22
 	sta	$ff22
 	stb	$ff22
 	sta	$ff22
 	sta	$ff22
-
-	stb	$ff22	Set CSS for beginning of next line
 
 	tst	$ff00	Wait for next hsync interrupt
 	sync
 
 	nop		Extra delay for beginning of visible line
-	ifeq	NTSC-1
-	nop
-	nop
 	nop
 	nop
-	else
-	andcc	#$ff
-	endif
 
-	sta	$ff22	Change CSS up to 7 more times per line
+	stb	$ff22	Change CSS up to 8 times per line
+	sta	$ff22
 	stb	$ff22
 	stb	$ff22
 	sta	$ff22
 	stb	$ff22
 	sta	$ff22
 	sta	$ff22
-
-	stb	$ff22	Set CSS for beginning of next line
 
 	tst	$ff00	Wait for next hsync interrupt
 	sync
 
 	nop		Extra delay for beginning of visible line
-	ifeq	NTSC-1
-	nop
-	nop
 	nop
 	nop
-	else
-	andcc	#$ff
-	endif
 
-	sta	$ff22	Change CSS up to 7 more times per line
+	stb	$ff22	Change CSS up to 8 times per line
+	sta	$ff22
 	stb	$ff22
 	stb	$ff22
 	sta	$ff22
@@ -2522,22 +1831,15 @@ HCVSYNC	tst	$ff00
 	sta	$ff22
 	sta	$ff22
 
-	stb	$ff22	Set CSS for beginning of next line
-
 	tst	$ff00	Wait for next hsync interrupt
 	sync
 
 	nop		Extra delay for beginning of visible line
-	ifeq	NTSC-1
-	nop
 	nop
 	nop
-	nop
-	else
-	andcc	#$ff
-	endif
 
-	sta	$ff22	Change CSS up to 7 more times per line
+	stb	$ff22	Change CSS up to 8 times per line
+	sta	$ff22
 	stb	$ff22
 	stb	$ff22
 	sta	$ff22
@@ -2545,22 +1847,15 @@ HCVSYNC	tst	$ff00
 	sta	$ff22
 	sta	$ff22
 
-	stb	$ff22	Set CSS for beginning of next line
-
 	tst	$ff00	Wait for next hsync interrupt
 	sync
 
 	nop		Extra delay for beginning of visible line
-	ifeq	NTSC-1
-	nop
 	nop
 	nop
-	nop
-	else
-	andcc	#$ff
-	endif
 
-	sta	$ff22	Change CSS up to 7 more times per line
+	stb	$ff22	Change CSS up to 8 times per line
+	sta	$ff22
 	stb	$ff22
 	stb	$ff22
 	sta	$ff22
@@ -2568,22 +1863,15 @@ HCVSYNC	tst	$ff00
 	sta	$ff22
 	sta	$ff22
 
-	stb	$ff22	Set CSS for beginning of next line
-
 	tst	$ff00	Wait for next hsync interrupt
 	sync
 
 	nop		Extra delay for beginning of visible line
-	ifeq	NTSC-1
-	nop
 	nop
 	nop
-	nop
-	else
-	andcc	#$ff
-	endif
 
-	sta	$ff22	Change CSS up to 7 more times per line
+	stb	$ff22	Change CSS up to 8 times per line
+	sta	$ff22
 	stb	$ff22
 	stb	$ff22
 	sta	$ff22
@@ -2591,22 +1879,15 @@ HCVSYNC	tst	$ff00
 	sta	$ff22
 	sta	$ff22
 
-	stb	$ff22	Set CSS for beginning of next line
-
 	tst	$ff00	Wait for next hsync interrupt
 	sync
 
 	nop		Extra delay for beginning of visible line
-	ifeq	NTSC-1
-	nop
 	nop
 	nop
-	nop
-	else
-	andcc	#$ff
-	endif
 
-	sta	$ff22	Change CSS up to 7 more times per line
+	stb	$ff22	Change CSS up to 8 times per line
+	sta	$ff22
 	stb	$ff22
 	stb	$ff22
 	sta	$ff22
@@ -2614,22 +1895,15 @@ HCVSYNC	tst	$ff00
 	sta	$ff22
 	sta	$ff22
 
-	stb	$ff22	Set CSS for beginning of next line
-
 	tst	$ff00	Wait for next hsync interrupt
 	sync
 
 	nop		Extra delay for beginning of visible line
-	ifeq	NTSC-1
-	nop
 	nop
 	nop
-	nop
-	else
-	andcc	#$ff
-	endif
 
-	sta	$ff22	Change CSS up to 7 more times per line
+	stb	$ff22	Change CSS up to 8 times per line
+	sta	$ff22
 	stb	$ff22
 	stb	$ff22
 	sta	$ff22
@@ -2637,22 +1911,15 @@ HCVSYNC	tst	$ff00
 	sta	$ff22
 	sta	$ff22
 
-	stb	$ff22	Set CSS for beginning of next line
-
 	tst	$ff00	Wait for next hsync interrupt
 	sync
 
 	nop		Extra delay for beginning of visible line
-	ifeq	NTSC-1
-	nop
 	nop
 	nop
-	nop
-	else
-	andcc	#$ff
-	endif
 
-	sta	$ff22	Change CSS up to 7 more times per line
+	stb	$ff22	Change CSS up to 8 times per line
+	sta	$ff22
 	stb	$ff22
 	stb	$ff22
 	sta	$ff22
@@ -2660,22 +1927,15 @@ HCVSYNC	tst	$ff00
 	sta	$ff22
 	sta	$ff22
 
-	stb	$ff22	Set CSS for beginning of next line
-
 	tst	$ff00	Wait for next hsync interrupt
 	sync
 
 	nop		Extra delay for beginning of visible line
-	ifeq	NTSC-1
-	nop
 	nop
 	nop
-	nop
-	else
-	andcc	#$ff
-	endif
 
-	sta	$ff22	Change CSS up to 7 more times per line
+	stb	$ff22	Change CSS up to 8 times per line
+	sta	$ff22
 	stb	$ff22
 	stb	$ff22
 	sta	$ff22
@@ -2683,22 +1943,15 @@ HCVSYNC	tst	$ff00
 	sta	$ff22
 	sta	$ff22
 
-	stb	$ff22	Set CSS for beginning of next line
-
 	tst	$ff00	Wait for next hsync interrupt
 	sync
 
 	nop		Extra delay for beginning of visible line
-	ifeq	NTSC-1
-	nop
 	nop
 	nop
-	nop
-	else
-	andcc	#$ff
-	endif
 
-	sta	$ff22	Change CSS up to 7 more times per line
+	stb	$ff22	Change CSS up to 8 times per line
+	sta	$ff22
 	stb	$ff22
 	stb	$ff22
 	sta	$ff22
@@ -2706,22 +1959,15 @@ HCVSYNC	tst	$ff00
 	sta	$ff22
 	sta	$ff22
 
-	stb	$ff22	Set CSS for beginning of next line
-
 	tst	$ff00	Wait for next hsync interrupt
 	sync
 
 	nop		Extra delay for beginning of visible line
-	ifeq	NTSC-1
-	nop
 	nop
 	nop
-	nop
-	else
-	andcc	#$ff
-	endif
 
-	sta	$ff22	Change CSS up to 7 more times per line
+	stb	$ff22	Change CSS up to 8 times per line
+	sta	$ff22
 	stb	$ff22
 	stb	$ff22
 	sta	$ff22
@@ -2729,22 +1975,15 @@ HCVSYNC	tst	$ff00
 	sta	$ff22
 	sta	$ff22
 
-	stb	$ff22	Set CSS for beginning of next line
-
 	tst	$ff00	Wait for next hsync interrupt
 	sync
 
 	nop		Extra delay for beginning of visible line
-	ifeq	NTSC-1
-	nop
 	nop
 	nop
-	nop
-	else
-	andcc	#$ff
-	endif
 
-	sta	$ff22	Change CSS up to 7 more times per line
+	stb	$ff22	Change CSS up to 8 times per line
+	sta	$ff22
 	stb	$ff22
 	stb	$ff22
 	sta	$ff22
@@ -2752,22 +1991,15 @@ HCVSYNC	tst	$ff00
 	sta	$ff22
 	sta	$ff22
 
-	stb	$ff22	Set CSS for beginning of next line
-
 	tst	$ff00	Wait for next hsync interrupt
 	sync
 
 	nop		Extra delay for beginning of visible line
-	ifeq	NTSC-1
-	nop
 	nop
 	nop
-	nop
-	else
-	andcc	#$ff
-	endif
 
-	sta	$ff22	Change CSS up to 7 more times per line
+	stb	$ff22	Change CSS up to 8 times per line
+	sta	$ff22
 	stb	$ff22
 	stb	$ff22
 	sta	$ff22
@@ -2775,22 +2007,15 @@ HCVSYNC	tst	$ff00
 	sta	$ff22
 	sta	$ff22
 
-	stb	$ff22	Set CSS for beginning of next line
-
 	tst	$ff00	Wait for next hsync interrupt
 	sync
 
 	nop		Extra delay for beginning of visible line
-	ifeq	NTSC-1
-	nop
 	nop
 	nop
-	nop
-	else
-	andcc	#$ff
-	endif
 
-	sta	$ff22	Change CSS up to 7 more times per line
+	stb	$ff22	Change CSS up to 8 times per line
+	sta	$ff22
 	stb	$ff22
 	stb	$ff22
 	sta	$ff22
@@ -2798,22 +2023,15 @@ HCVSYNC	tst	$ff00
 	sta	$ff22
 	sta	$ff22
 
-	stb	$ff22	Set CSS for beginning of next line
-
 	tst	$ff00	Wait for next hsync interrupt
 	sync
 
 	nop		Extra delay for beginning of visible line
-	ifeq	NTSC-1
-	nop
 	nop
 	nop
-	nop
-	else
-	andcc	#$ff
-	endif
 
-	sta	$ff22	Change CSS up to 7 more times per line
+	stb	$ff22	Change CSS up to 8 times per line
+	sta	$ff22
 	stb	$ff22
 	stb	$ff22
 	sta	$ff22
@@ -2821,22 +2039,15 @@ HCVSYNC	tst	$ff00
 	sta	$ff22
 	sta	$ff22
 
-	stb	$ff22	Set CSS for beginning of next line
-
 	tst	$ff00	Wait for next hsync interrupt
 	sync
 
 	nop		Extra delay for beginning of visible line
-	ifeq	NTSC-1
-	nop
 	nop
 	nop
-	nop
-	else
-	andcc	#$ff
-	endif
 
-	sta	$ff22	Change CSS up to 7 more times per line
+	stb	$ff22	Change CSS up to 8 times per line
+	sta	$ff22
 	stb	$ff22
 	stb	$ff22
 	sta	$ff22
@@ -2844,22 +2055,15 @@ HCVSYNC	tst	$ff00
 	sta	$ff22
 	sta	$ff22
 
-	stb	$ff22	Set CSS for beginning of next line
-
 	tst	$ff00	Wait for next hsync interrupt
 	sync
 
 	nop		Extra delay for beginning of visible line
-	ifeq	NTSC-1
-	nop
 	nop
 	nop
-	nop
-	else
-	andcc	#$ff
-	endif
 
-	sta	$ff22	Change CSS up to 7 more times per line
+	stb	$ff22	Change CSS up to 8 times per line
+	sta	$ff22
 	stb	$ff22
 	stb	$ff22
 	sta	$ff22
@@ -2867,22 +2071,15 @@ HCVSYNC	tst	$ff00
 	sta	$ff22
 	sta	$ff22
 
-	stb	$ff22	Set CSS for beginning of next line
-
 	tst	$ff00	Wait for next hsync interrupt
 	sync
 
 	nop		Extra delay for beginning of visible line
-	ifeq	NTSC-1
-	nop
 	nop
 	nop
-	nop
-	else
-	andcc	#$ff
-	endif
 
-	sta	$ff22	Change CSS up to 7 more times per line
+	stb	$ff22	Change CSS up to 8 times per line
+	sta	$ff22
 	stb	$ff22
 	stb	$ff22
 	sta	$ff22
@@ -2890,22 +2087,15 @@ HCVSYNC	tst	$ff00
 	sta	$ff22
 	sta	$ff22
 
-	stb	$ff22	Set CSS for beginning of next line
-
 	tst	$ff00	Wait for next hsync interrupt
 	sync
 
 	nop		Extra delay for beginning of visible line
-	ifeq	NTSC-1
-	nop
 	nop
 	nop
-	nop
-	else
-	andcc	#$ff
-	endif
 
-	sta	$ff22	Change CSS up to 7 more times per line
+	stb	$ff22	Change CSS up to 8 times per line
+	sta	$ff22
 	stb	$ff22
 	stb	$ff22
 	sta	$ff22
@@ -2913,22 +2103,15 @@ HCVSYNC	tst	$ff00
 	sta	$ff22
 	sta	$ff22
 
-	stb	$ff22	Set CSS for beginning of next line
-
 	tst	$ff00	Wait for next hsync interrupt
 	sync
 
 	nop		Extra delay for beginning of visible line
-	ifeq	NTSC-1
-	nop
 	nop
 	nop
-	nop
-	else
-	andcc	#$ff
-	endif
 
-	sta	$ff22	Change CSS up to 7 more times per line
+	stb	$ff22	Change CSS up to 8 times per line
+	sta	$ff22
 	stb	$ff22
 	stb	$ff22
 	sta	$ff22
@@ -2936,22 +2119,15 @@ HCVSYNC	tst	$ff00
 	sta	$ff22
 	sta	$ff22
 
-	stb	$ff22	Set CSS for beginning of next line
-
 	tst	$ff00	Wait for next hsync interrupt
 	sync
 
 	nop		Extra delay for beginning of visible line
-	ifeq	NTSC-1
-	nop
 	nop
 	nop
-	nop
-	else
-	andcc	#$ff
-	endif
 
-	sta	$ff22	Change CSS up to 7 more times per line
+	stb	$ff22	Change CSS up to 8 times per line
+	sta	$ff22
 	stb	$ff22
 	stb	$ff22
 	sta	$ff22
@@ -2959,22 +2135,15 @@ HCVSYNC	tst	$ff00
 	sta	$ff22
 	sta	$ff22
 
-	stb	$ff22	Set CSS for beginning of next line
-
 	tst	$ff00	Wait for next hsync interrupt
 	sync
 
 	nop		Extra delay for beginning of visible line
-	ifeq	NTSC-1
-	nop
 	nop
 	nop
-	nop
-	else
-	andcc	#$ff
-	endif
 
-	sta	$ff22	Change CSS up to 7 more times per line
+	stb	$ff22	Change CSS up to 8 times per line
+	sta	$ff22
 	stb	$ff22
 	stb	$ff22
 	sta	$ff22
@@ -2982,22 +2151,15 @@ HCVSYNC	tst	$ff00
 	sta	$ff22
 	sta	$ff22
 
-	stb	$ff22	Set CSS for beginning of next line
-
 	tst	$ff00	Wait for next hsync interrupt
 	sync
 
 	nop		Extra delay for beginning of visible line
-	ifeq	NTSC-1
-	nop
 	nop
 	nop
-	nop
-	else
-	andcc	#$ff
-	endif
 
-	sta	$ff22	Change CSS up to 7 more times per line
+	stb	$ff22	Change CSS up to 8 times per line
+	sta	$ff22
 	stb	$ff22
 	stb	$ff22
 	sta	$ff22
@@ -3005,22 +2167,15 @@ HCVSYNC	tst	$ff00
 	sta	$ff22
 	sta	$ff22
 
-	stb	$ff22	Set CSS for beginning of next line
-
 	tst	$ff00	Wait for next hsync interrupt
 	sync
 
 	nop		Extra delay for beginning of visible line
-	ifeq	NTSC-1
-	nop
 	nop
 	nop
-	nop
-	else
-	andcc	#$ff
-	endif
 
-	sta	$ff22	Change CSS up to 7 more times per line
+	stb	$ff22	Change CSS up to 8 times per line
+	sta	$ff22
 	stb	$ff22
 	stb	$ff22
 	sta	$ff22
@@ -3028,22 +2183,15 @@ HCVSYNC	tst	$ff00
 	sta	$ff22
 	sta	$ff22
 
-	stb	$ff22	Set CSS for beginning of next line
-
 	tst	$ff00	Wait for next hsync interrupt
 	sync
 
 	nop		Extra delay for beginning of visible line
-	ifeq	NTSC-1
-	nop
 	nop
 	nop
-	nop
-	else
-	andcc	#$ff
-	endif
 
-	sta	$ff22	Change CSS up to 7 more times per line
+	stb	$ff22	Change CSS up to 8 times per line
+	sta	$ff22
 	stb	$ff22
 	stb	$ff22
 	sta	$ff22
@@ -3051,22 +2199,15 @@ HCVSYNC	tst	$ff00
 	sta	$ff22
 	sta	$ff22
 
-	stb	$ff22	Set CSS for beginning of next line
-
 	tst	$ff00	Wait for next hsync interrupt
 	sync
 
 	nop		Extra delay for beginning of visible line
-	ifeq	NTSC-1
-	nop
 	nop
 	nop
-	nop
-	else
-	andcc	#$ff
-	endif
 
-	sta	$ff22	Change CSS up to 7 more times per line
+	stb	$ff22	Change CSS up to 8 times per line
+	sta	$ff22
 	stb	$ff22
 	stb	$ff22
 	sta	$ff22
@@ -3074,22 +2215,15 @@ HCVSYNC	tst	$ff00
 	sta	$ff22
 	sta	$ff22
 
-	stb	$ff22	Set CSS for beginning of next line
-
 	tst	$ff00	Wait for next hsync interrupt
 	sync
 
 	nop		Extra delay for beginning of visible line
-	ifeq	NTSC-1
-	nop
 	nop
 	nop
-	nop
-	else
-	andcc	#$ff
-	endif
 
-	sta	$ff22	Change CSS up to 7 more times per line
+	stb	$ff22	Change CSS up to 8 times per line
+	sta	$ff22
 	stb	$ff22
 	stb	$ff22
 	sta	$ff22
@@ -3097,22 +2231,15 @@ HCVSYNC	tst	$ff00
 	sta	$ff22
 	sta	$ff22
 
-	stb	$ff22	Set CSS for beginning of next line
-
 	tst	$ff00	Wait for next hsync interrupt
 	sync
 
 	nop		Extra delay for beginning of visible line
-	ifeq	NTSC-1
-	nop
 	nop
 	nop
-	nop
-	else
-	andcc	#$ff
-	endif
 
-	sta	$ff22	Change CSS up to 7 more times per line
+	stb	$ff22	Change CSS up to 8 times per line
+	sta	$ff22
 	stb	$ff22
 	stb	$ff22
 	sta	$ff22
@@ -3120,22 +2247,15 @@ HCVSYNC	tst	$ff00
 	sta	$ff22
 	sta	$ff22
 
-	stb	$ff22	Set CSS for beginning of next line
-
 	tst	$ff00	Wait for next hsync interrupt
 	sync
 
 	nop		Extra delay for beginning of visible line
-	ifeq	NTSC-1
-	nop
 	nop
 	nop
-	nop
-	else
-	andcc	#$ff
-	endif
 
-	sta	$ff22	Change CSS up to 7 more times per line
+	stb	$ff22	Change CSS up to 8 times per line
+	sta	$ff22
 	stb	$ff22
 	stb	$ff22
 	sta	$ff22
@@ -3143,22 +2263,15 @@ HCVSYNC	tst	$ff00
 	sta	$ff22
 	sta	$ff22
 
-	stb	$ff22	Set CSS for beginning of next line
-
 	tst	$ff00	Wait for next hsync interrupt
 	sync
 
 	nop		Extra delay for beginning of visible line
-	ifeq	NTSC-1
-	nop
 	nop
 	nop
-	nop
-	else
-	andcc	#$ff
-	endif
 
-	sta	$ff22	Change CSS up to 7 more times per line
+	stb	$ff22	Change CSS up to 8 times per line
+	sta	$ff22
 	stb	$ff22
 	stb	$ff22
 	sta	$ff22
@@ -3166,22 +2279,15 @@ HCVSYNC	tst	$ff00
 	sta	$ff22
 	sta	$ff22
 
-	stb	$ff22	Set CSS for beginning of next line
-
 	tst	$ff00	Wait for next hsync interrupt
 	sync
 
 	nop		Extra delay for beginning of visible line
-	ifeq	NTSC-1
-	nop
 	nop
 	nop
-	nop
-	else
-	andcc	#$ff
-	endif
 
-	sta	$ff22	Change CSS up to 7 more times per line
+	stb	$ff22	Change CSS up to 8 times per line
+	sta	$ff22
 	stb	$ff22
 	stb	$ff22
 	sta	$ff22
@@ -3189,22 +2295,15 @@ HCVSYNC	tst	$ff00
 	sta	$ff22
 	sta	$ff22
 
-	stb	$ff22	Set CSS for beginning of next line
-
 	tst	$ff00	Wait for next hsync interrupt
 	sync
 
 	nop		Extra delay for beginning of visible line
-	ifeq	NTSC-1
-	nop
 	nop
 	nop
-	nop
-	else
-	andcc	#$ff
-	endif
 
-	sta	$ff22	Change CSS up to 7 more times per line
+	stb	$ff22	Change CSS up to 8 times per line
+	sta	$ff22
 	stb	$ff22
 	stb	$ff22
 	sta	$ff22
@@ -3212,22 +2311,15 @@ HCVSYNC	tst	$ff00
 	sta	$ff22
 	sta	$ff22
 
-	stb	$ff22	Set CSS for beginning of next line
-
 	tst	$ff00	Wait for next hsync interrupt
 	sync
 
 	nop		Extra delay for beginning of visible line
-	ifeq	NTSC-1
-	nop
 	nop
 	nop
-	nop
-	else
-	andcc	#$ff
-	endif
 
-	sta	$ff22	Change CSS up to 7 more times per line
+	stb	$ff22	Change CSS up to 8 times per line
+	sta	$ff22
 	stb	$ff22
 	stb	$ff22
 	sta	$ff22
@@ -3235,758 +2327,527 @@ HCVSYNC	tst	$ff00
 	sta	$ff22
 	sta	$ff22
 
-	stb	$ff22	Set CSS for beginning of next line
-
 	tst	$ff00	Wait for next hsync interrupt
 	sync
 
 	nop		Extra delay for beginning of visible line
-	ifeq	NTSC-1
-	nop
 	nop
 	nop
-	nop
-	else
-	andcc	#$ff
-	endif
 
-	sta	$ff22	Change CSS up to 7 more times per line
+	stb	$ff22	Change CSS up to 8 times per line
+	sta	$ff22
 	stb	$ff22
 	stb	$ff22
 	sta	$ff22
 	stb	$ff22
 	sta	$ff22
 	sta	$ff22
-
-	stb	$ff22	Set CSS for beginning of next line
 
 	tst	$ff00	Wait for next hsync interrupt
 	sync
 
 	nop		Extra delay for beginning of visible line
-	ifeq	NTSC-1
 	nop
 	nop
-	nop
-	nop
-	else
-	andcc	#$ff
-	endif
 
-	sta	$ff22	Change CSS up to 7 more times per line
+	stb	$ff22	Change CSS up to 8 times per line
+	sta	$ff22
 	stb	$ff22
 	stb	$ff22
 	sta	$ff22
 	stb	$ff22
 	sta	$ff22
 	sta	$ff22
-
-	stb	$ff22	Set CSS for beginning of next line
 
 	tst	$ff00	Wait for next hsync interrupt
 	sync
 
 	nop		Extra delay for beginning of visible line
-	ifeq	NTSC-1
 	nop
 	nop
-	nop
-	nop
-	else
-	andcc	#$ff
-	endif
 
-	sta	$ff22	Change CSS up to 7 more times per line
+	stb	$ff22	Change CSS up to 8 times per line
+	sta	$ff22
 	stb	$ff22
 	stb	$ff22
 	sta	$ff22
 	stb	$ff22
 	sta	$ff22
 	sta	$ff22
-
-	stb	$ff22	Set CSS for beginning of next line
 
 	tst	$ff00	Wait for next hsync interrupt
 	sync
 
 	nop		Extra delay for beginning of visible line
-	ifeq	NTSC-1
 	nop
 	nop
-	nop
-	nop
-	else
-	andcc	#$ff
-	endif
 
-	sta	$ff22	Change CSS up to 7 more times per line
+	stb	$ff22	Change CSS up to 8 times per line
+	sta	$ff22
 	stb	$ff22
 	stb	$ff22
 	sta	$ff22
 	stb	$ff22
 	sta	$ff22
 	sta	$ff22
-
-	stb	$ff22	Set CSS for beginning of next line
 
 	tst	$ff00	Wait for next hsync interrupt
 	sync
 
 	nop		Extra delay for beginning of visible line
-	ifeq	NTSC-1
 	nop
 	nop
-	nop
-	nop
-	else
-	andcc	#$ff
-	endif
 
-	sta	$ff22	Change CSS up to 7 more times per line
+	stb	$ff22	Change CSS up to 8 times per line
+	sta	$ff22
 	stb	$ff22
 	stb	$ff22
 	sta	$ff22
 	stb	$ff22
 	sta	$ff22
 	sta	$ff22
-
-	stb	$ff22	Set CSS for beginning of next line
 
 	tst	$ff00	Wait for next hsync interrupt
 	sync
 
 	nop		Extra delay for beginning of visible line
-	ifeq	NTSC-1
 	nop
 	nop
-	nop
-	nop
-	else
-	andcc	#$ff
-	endif
 
-	sta	$ff22	Change CSS up to 7 more times per line
+	stb	$ff22	Change CSS up to 8 times per line
+	sta	$ff22
 	stb	$ff22
 	stb	$ff22
 	sta	$ff22
 	stb	$ff22
 	sta	$ff22
 	sta	$ff22
-
-	stb	$ff22	Set CSS for beginning of next line
 
 	tst	$ff00	Wait for next hsync interrupt
 	sync
 
 	nop		Extra delay for beginning of visible line
-	ifeq	NTSC-1
 	nop
 	nop
-	nop
-	nop
-	else
-	andcc	#$ff
-	endif
 
-	sta	$ff22	Change CSS up to 7 more times per line
+	stb	$ff22	Change CSS up to 8 times per line
+	sta	$ff22
 	stb	$ff22
 	stb	$ff22
 	sta	$ff22
 	stb	$ff22
 	sta	$ff22
 	sta	$ff22
-
-	stb	$ff22	Set CSS for beginning of next line
 
 	tst	$ff00	Wait for next hsync interrupt
 	sync
 
 	nop		Extra delay for beginning of visible line
-	ifeq	NTSC-1
 	nop
 	nop
-	nop
-	nop
-	else
-	andcc	#$ff
-	endif
 
-	sta	$ff22	Change CSS up to 7 more times per line
+	stb	$ff22	Change CSS up to 8 times per line
+	sta	$ff22
 	stb	$ff22
 	stb	$ff22
 	sta	$ff22
 	stb	$ff22
 	sta	$ff22
 	sta	$ff22
-
-	stb	$ff22	Set CSS for beginning of next line
 
 	tst	$ff00	Wait for next hsync interrupt
 	sync
 
 	nop		Extra delay for beginning of visible line
-	ifeq	NTSC-1
 	nop
 	nop
-	nop
-	nop
-	else
-	andcc	#$ff
-	endif
 
-	sta	$ff22	Change CSS up to 7 more times per line
+	stb	$ff22	Change CSS up to 8 times per line
+	sta	$ff22
 	stb	$ff22
 	stb	$ff22
 	sta	$ff22
 	stb	$ff22
 	sta	$ff22
 	sta	$ff22
-
-	stb	$ff22	Set CSS for beginning of next line
 
 	tst	$ff00	Wait for next hsync interrupt
 	sync
 
 	nop		Extra delay for beginning of visible line
-	ifeq	NTSC-1
 	nop
 	nop
-	nop
-	nop
-	else
-	andcc	#$ff
-	endif
 
-	sta	$ff22	Change CSS up to 7 more times per line
+	stb	$ff22	Change CSS up to 8 times per line
+	sta	$ff22
 	stb	$ff22
 	stb	$ff22
 	sta	$ff22
 	stb	$ff22
 	sta	$ff22
 	sta	$ff22
-
-	stb	$ff22	Set CSS for beginning of next line
 
 	tst	$ff00	Wait for next hsync interrupt
 	sync
 
 	nop		Extra delay for beginning of visible line
-	ifeq	NTSC-1
 	nop
 	nop
-	nop
-	nop
-	else
-	andcc	#$ff
-	endif
 
-	sta	$ff22	Change CSS up to 7 more times per line
+	stb	$ff22	Change CSS up to 8 times per line
+	sta	$ff22
 	stb	$ff22
 	stb	$ff22
 	sta	$ff22
 	stb	$ff22
 	sta	$ff22
 	sta	$ff22
-
-	stb	$ff22	Set CSS for beginning of next line
 
 	tst	$ff00	Wait for next hsync interrupt
 	sync
 
 	nop		Extra delay for beginning of visible line
-	ifeq	NTSC-1
 	nop
 	nop
-	nop
-	nop
-	else
-	andcc	#$ff
-	endif
 
-	sta	$ff22	Change CSS up to 7 more times per line
+	stb	$ff22	Change CSS up to 8 times per line
+	sta	$ff22
 	stb	$ff22
 	stb	$ff22
 	sta	$ff22
 	stb	$ff22
 	sta	$ff22
 	sta	$ff22
-
-	stb	$ff22	Set CSS for beginning of next line
 
 	tst	$ff00	Wait for next hsync interrupt
 	sync
 
 	nop		Extra delay for beginning of visible line
-	ifeq	NTSC-1
 	nop
 	nop
-	nop
-	nop
-	else
-	andcc	#$ff
-	endif
 
-	sta	$ff22	Change CSS up to 7 more times per line
+	stb	$ff22	Change CSS up to 8 times per line
+	sta	$ff22
 	stb	$ff22
 	stb	$ff22
 	sta	$ff22
 	stb	$ff22
 	sta	$ff22
 	sta	$ff22
-
-	stb	$ff22	Set CSS for beginning of next line
 
 	tst	$ff00	Wait for next hsync interrupt
 	sync
 
 	nop		Extra delay for beginning of visible line
-	ifeq	NTSC-1
 	nop
 	nop
-	nop
-	nop
-	else
-	andcc	#$ff
-	endif
 
-	sta	$ff22	Change CSS up to 7 more times per line
+	stb	$ff22	Change CSS up to 8 times per line
+	sta	$ff22
 	stb	$ff22
 	stb	$ff22
 	sta	$ff22
 	stb	$ff22
 	sta	$ff22
 	sta	$ff22
-
-	stb	$ff22	Set CSS for beginning of next line
 
 	tst	$ff00	Wait for next hsync interrupt
 	sync
 
 	nop		Extra delay for beginning of visible line
-	ifeq	NTSC-1
 	nop
 	nop
-	nop
-	nop
-	else
-	andcc	#$ff
-	endif
 
-	sta	$ff22	Change CSS up to 7 more times per line
+	stb	$ff22	Change CSS up to 8 times per line
+	sta	$ff22
 	stb	$ff22
 	stb	$ff22
 	sta	$ff22
 	stb	$ff22
 	sta	$ff22
 	sta	$ff22
-
-	stb	$ff22	Set CSS for beginning of next line
 
 	tst	$ff00	Wait for next hsync interrupt
 	sync
 
 	nop		Extra delay for beginning of visible line
-	ifeq	NTSC-1
 	nop
 	nop
-	nop
-	nop
-	else
-	andcc	#$ff
-	endif
 
-	sta	$ff22	Change CSS up to 7 more times per line
+	stb	$ff22	Change CSS up to 8 times per line
+	sta	$ff22
 	stb	$ff22
 	stb	$ff22
 	sta	$ff22
 	stb	$ff22
 	sta	$ff22
 	sta	$ff22
-
-	stb	$ff22	Set CSS for beginning of next line
 
 	tst	$ff00	Wait for next hsync interrupt
 	sync
 
 	nop		Extra delay for beginning of visible line
-	ifeq	NTSC-1
 	nop
 	nop
-	nop
-	nop
-	else
-	andcc	#$ff
-	endif
 
-	sta	$ff22	Change CSS up to 7 more times per line
+	stb	$ff22	Change CSS up to 8 times per line
+	sta	$ff22
 	stb	$ff22
 	stb	$ff22
 	sta	$ff22
 	stb	$ff22
 	sta	$ff22
 	sta	$ff22
-
-	stb	$ff22	Set CSS for beginning of next line
 
 	tst	$ff00	Wait for next hsync interrupt
 	sync
 
 	nop		Extra delay for beginning of visible line
-	ifeq	NTSC-1
 	nop
 	nop
-	nop
-	nop
-	else
-	andcc	#$ff
-	endif
 
-	sta	$ff22	Change CSS up to 7 more times per line
+	stb	$ff22	Change CSS up to 8 times per line
+	sta	$ff22
 	stb	$ff22
 	stb	$ff22
 	sta	$ff22
 	stb	$ff22
 	sta	$ff22
 	sta	$ff22
-
-	stb	$ff22	Set CSS for beginning of next line
 
 	tst	$ff00	Wait for next hsync interrupt
 	sync
 
 	nop		Extra delay for beginning of visible line
-	ifeq	NTSC-1
 	nop
 	nop
-	nop
-	nop
-	else
-	andcc	#$ff
-	endif
 
-	sta	$ff22	Change CSS up to 7 more times per line
+	stb	$ff22	Change CSS up to 8 times per line
+	sta	$ff22
 	stb	$ff22
 	stb	$ff22
 	sta	$ff22
 	stb	$ff22
 	sta	$ff22
 	sta	$ff22
-
-	stb	$ff22	Set CSS for beginning of next line
 
 	tst	$ff00	Wait for next hsync interrupt
 	sync
 
 	nop		Extra delay for beginning of visible line
-	ifeq	NTSC-1
 	nop
 	nop
-	nop
-	nop
-	else
-	andcc	#$ff
-	endif
 
-	sta	$ff22	Change CSS up to 7 more times per line
+	stb	$ff22	Change CSS up to 8 times per line
+	sta	$ff22
 	stb	$ff22
 	stb	$ff22
 	sta	$ff22
 	stb	$ff22
 	sta	$ff22
 	sta	$ff22
-
-	stb	$ff22	Set CSS for beginning of next line
 
 	tst	$ff00	Wait for next hsync interrupt
 	sync
 
 	nop		Extra delay for beginning of visible line
-	ifeq	NTSC-1
 	nop
 	nop
-	nop
-	nop
-	else
-	andcc	#$ff
-	endif
 
-	sta	$ff22	Change CSS up to 7 more times per line
+	stb	$ff22	Change CSS up to 8 times per line
+	sta	$ff22
 	stb	$ff22
 	stb	$ff22
 	sta	$ff22
 	stb	$ff22
 	sta	$ff22
 	sta	$ff22
-
-	stb	$ff22	Set CSS for beginning of next line
 
 	tst	$ff00	Wait for next hsync interrupt
 	sync
 
 	nop		Extra delay for beginning of visible line
-	ifeq	NTSC-1
 	nop
 	nop
-	nop
-	nop
-	else
-	andcc	#$ff
-	endif
 
-	sta	$ff22	Change CSS up to 7 more times per line
+	stb	$ff22	Change CSS up to 8 times per line
+	sta	$ff22
 	stb	$ff22
 	stb	$ff22
 	sta	$ff22
 	stb	$ff22
 	sta	$ff22
 	sta	$ff22
-
-	stb	$ff22	Set CSS for beginning of next line
 
 	tst	$ff00	Wait for next hsync interrupt
 	sync
 
 	nop		Extra delay for beginning of visible line
-	ifeq	NTSC-1
 	nop
 	nop
-	nop
-	nop
-	else
-	andcc	#$ff
-	endif
 
-	sta	$ff22	Change CSS up to 7 more times per line
+	stb	$ff22	Change CSS up to 8 times per line
+	sta	$ff22
 	stb	$ff22
 	stb	$ff22
 	sta	$ff22
 	stb	$ff22
 	sta	$ff22
 	sta	$ff22
-
-	stb	$ff22	Set CSS for beginning of next line
 
 	tst	$ff00	Wait for next hsync interrupt
 	sync
 
 	nop		Extra delay for beginning of visible line
-	ifeq	NTSC-1
 	nop
 	nop
-	nop
-	nop
-	else
-	andcc	#$ff
-	endif
 
-	sta	$ff22	Change CSS up to 7 more times per line
+	stb	$ff22	Change CSS up to 8 times per line
+	sta	$ff22
 	stb	$ff22
 	stb	$ff22
 	sta	$ff22
 	stb	$ff22
 	sta	$ff22
 	sta	$ff22
-
-	stb	$ff22	Set CSS for beginning of next line
 
 	tst	$ff00	Wait for next hsync interrupt
 	sync
 
 	nop		Extra delay for beginning of visible line
-	ifeq	NTSC-1
 	nop
 	nop
-	nop
-	nop
-	else
-	andcc	#$ff
-	endif
 
-	sta	$ff22	Change CSS up to 7 more times per line
+	stb	$ff22	Change CSS up to 8 times per line
+	sta	$ff22
 	stb	$ff22
 	stb	$ff22
 	sta	$ff22
 	stb	$ff22
 	sta	$ff22
 	sta	$ff22
-
-	stb	$ff22	Set CSS for beginning of next line
 
 	tst	$ff00	Wait for next hsync interrupt
 	sync
 
 	nop		Extra delay for beginning of visible line
-	ifeq	NTSC-1
 	nop
 	nop
-	nop
-	nop
-	else
-	andcc	#$ff
-	endif
 
-	sta	$ff22	Change CSS up to 7 more times per line
+	stb	$ff22	Change CSS up to 8 times per line
+	sta	$ff22
 	stb	$ff22
 	stb	$ff22
 	sta	$ff22
 	stb	$ff22
 	sta	$ff22
 	sta	$ff22
-
-	stb	$ff22	Set CSS for beginning of next line
 
 	tst	$ff00	Wait for next hsync interrupt
 	sync
 
 	nop		Extra delay for beginning of visible line
-	ifeq	NTSC-1
 	nop
 	nop
-	nop
-	nop
-	else
-	andcc	#$ff
-	endif
 
-	sta	$ff22	Change CSS up to 7 more times per line
+	stb	$ff22	Change CSS up to 8 times per line
+	sta	$ff22
 	stb	$ff22
 	stb	$ff22
 	sta	$ff22
 	stb	$ff22
 	sta	$ff22
 	sta	$ff22
-
-	stb	$ff22	Set CSS for beginning of next line
 
 	tst	$ff00	Wait for next hsync interrupt
 	sync
 
 	nop		Extra delay for beginning of visible line
-	ifeq	NTSC-1
 	nop
 	nop
-	nop
-	nop
-	else
-	andcc	#$ff
-	endif
 
-	sta	$ff22	Change CSS up to 7 more times per line
+	stb	$ff22	Change CSS up to 8 times per line
+	sta	$ff22
 	stb	$ff22
 	stb	$ff22
 	sta	$ff22
 	stb	$ff22
 	sta	$ff22
 	sta	$ff22
-
-	stb	$ff22	Set CSS for beginning of next line
 
 	tst	$ff00	Wait for next hsync interrupt
 	sync
 
 	nop		Extra delay for beginning of visible line
-	ifeq	NTSC-1
 	nop
 	nop
-	nop
-	nop
-	else
-	andcc	#$ff
-	endif
 
-	sta	$ff22	Change CSS up to 7 more times per line
+	stb	$ff22	Change CSS up to 8 times per line
+	sta	$ff22
 	stb	$ff22
 	stb	$ff22
 	sta	$ff22
 	stb	$ff22
 	sta	$ff22
 	sta	$ff22
-
-	stb	$ff22	Set CSS for beginning of next line
 
 	tst	$ff00	Wait for next hsync interrupt
 	sync
 
 	nop		Extra delay for beginning of visible line
-	ifeq	NTSC-1
 	nop
 	nop
-	nop
-	nop
-	else
-	andcc	#$ff
-	endif
 
-	sta	$ff22	Change CSS up to 7 more times per line
+	stb	$ff22	Change CSS up to 8 times per line
+	sta	$ff22
 	stb	$ff22
 	stb	$ff22
 	sta	$ff22
 	stb	$ff22
 	sta	$ff22
 	sta	$ff22
-
-	stb	$ff22	Set CSS for beginning of next line
 
 	tst	$ff00	Wait for next hsync interrupt
 	sync
 
 	nop		Extra delay for beginning of visible line
-	ifeq	NTSC-1
 	nop
 	nop
-	nop
-	nop
-	else
-	andcc	#$ff
-	endif
 
-	sta	$ff22	Change CSS up to 7 more times per line
+	stb	$ff22	Change CSS up to 8 times per line
+	sta	$ff22
 	stb	$ff22
 	stb	$ff22
 	sta	$ff22
 	stb	$ff22
 	sta	$ff22
 	sta	$ff22
-
-	stb	$ff22	Set CSS for beginning of next line
 
 	tst	$ff00	Wait for next hsync interrupt
 	sync
 
 	nop		Extra delay for beginning of visible line
-	ifeq	NTSC-1
 	nop
 	nop
-	nop
-	nop
-	else
-	andcc	#$ff
-	endif
 
-	sta	$ff22	Change CSS up to 7 more times per line
+	stb	$ff22	Change CSS up to 8 times per line
+	sta	$ff22
 	stb	$ff22
 	stb	$ff22
 	sta	$ff22
 	stb	$ff22
 	sta	$ff22
 	sta	$ff22
-
-	stb	$ff22	Set CSS for beginning of next line
 
 	tst	$ff00	Wait for next hsync interrupt
 	sync
 
 	nop		Extra delay for beginning of visible line
-	ifeq	NTSC-1
 	nop
 	nop
-	nop
-	nop
-	else
-	andcc	#$ff
-	endif
 
-	sta	$ff22	Change CSS up to 7 more times per line
+	stb	$ff22	Change CSS up to 8 times per line
+	sta	$ff22
 	stb	$ff22
 	stb	$ff22
 	sta	$ff22
@@ -3994,22 +2855,15 @@ HCVSYNC	tst	$ff00
 	sta	$ff22
 	sta	$ff22
 
-	stb	$ff22	Set CSS for beginning of next line
-
 	tst	$ff00	Wait for next hsync interrupt
 	sync
 
 	nop		Extra delay for beginning of visible line
-	ifeq	NTSC-1
-	nop
 	nop
 	nop
-	nop
-	else
-	andcc	#$ff
-	endif
 
-	sta	$ff22	Change CSS up to 7 more times per line
+	stb	$ff22	Change CSS up to 8 times per line
+	sta	$ff22
 	stb	$ff22
 	stb	$ff22
 	sta	$ff22
@@ -4017,22 +2871,15 @@ HCVSYNC	tst	$ff00
 	sta	$ff22
 	sta	$ff22
 
-	stb	$ff22	Set CSS for beginning of next line
-
 	tst	$ff00	Wait for next hsync interrupt
 	sync
 
 	nop		Extra delay for beginning of visible line
-	ifeq	NTSC-1
-	nop
 	nop
 	nop
-	nop
-	else
-	andcc	#$ff
-	endif
 
-	sta	$ff22	Change CSS up to 7 more times per line
+	stb	$ff22	Change CSS up to 8 times per line
+	sta	$ff22
 	stb	$ff22
 	stb	$ff22
 	sta	$ff22
@@ -4040,22 +2887,15 @@ HCVSYNC	tst	$ff00
 	sta	$ff22
 	sta	$ff22
 
-	stb	$ff22	Set CSS for beginning of next line
-
 	tst	$ff00	Wait for next hsync interrupt
 	sync
 
 	nop		Extra delay for beginning of visible line
-	ifeq	NTSC-1
-	nop
 	nop
 	nop
-	nop
-	else
-	andcc	#$ff
-	endif
 
-	sta	$ff22	Change CSS up to 7 more times per line
+	stb	$ff22	Change CSS up to 8 times per line
+	sta	$ff22
 	stb	$ff22
 	stb	$ff22
 	sta	$ff22
@@ -4063,22 +2903,15 @@ HCVSYNC	tst	$ff00
 	sta	$ff22
 	sta	$ff22
 
-	stb	$ff22	Set CSS for beginning of next line
-
 	tst	$ff00	Wait for next hsync interrupt
 	sync
 
 	nop		Extra delay for beginning of visible line
-	ifeq	NTSC-1
-	nop
 	nop
 	nop
-	nop
-	else
-	andcc	#$ff
-	endif
 
-	sta	$ff22	Change CSS up to 7 more times per line
+	stb	$ff22	Change CSS up to 8 times per line
+	sta	$ff22
 	stb	$ff22
 	stb	$ff22
 	sta	$ff22
@@ -4086,22 +2919,15 @@ HCVSYNC	tst	$ff00
 	sta	$ff22
 	sta	$ff22
 
-	stb	$ff22	Set CSS for beginning of next line
-
 	tst	$ff00	Wait for next hsync interrupt
 	sync
 
 	nop		Extra delay for beginning of visible line
-	ifeq	NTSC-1
-	nop
 	nop
 	nop
-	nop
-	else
-	andcc	#$ff
-	endif
 
-	sta	$ff22	Change CSS up to 7 more times per line
+	stb	$ff22	Change CSS up to 8 times per line
+	sta	$ff22
 	stb	$ff22
 	stb	$ff22
 	sta	$ff22
@@ -4109,22 +2935,15 @@ HCVSYNC	tst	$ff00
 	sta	$ff22
 	sta	$ff22
 
-	stb	$ff22	Set CSS for beginning of next line
-
 	tst	$ff00	Wait for next hsync interrupt
 	sync
 
 	nop		Extra delay for beginning of visible line
-	ifeq	NTSC-1
-	nop
 	nop
 	nop
-	nop
-	else
-	andcc	#$ff
-	endif
 
-	sta	$ff22	Change CSS up to 7 more times per line
+	stb	$ff22	Change CSS up to 8 times per line
+	sta	$ff22
 	stb	$ff22
 	stb	$ff22
 	sta	$ff22
@@ -4132,22 +2951,15 @@ HCVSYNC	tst	$ff00
 	sta	$ff22
 	sta	$ff22
 
-	stb	$ff22	Set CSS for beginning of next line
-
 	tst	$ff00	Wait for next hsync interrupt
 	sync
 
 	nop		Extra delay for beginning of visible line
-	ifeq	NTSC-1
-	nop
 	nop
 	nop
-	nop
-	else
-	andcc	#$ff
-	endif
 
-	sta	$ff22	Change CSS up to 7 more times per line
+	stb	$ff22	Change CSS up to 8 times per line
+	sta	$ff22
 	stb	$ff22
 	stb	$ff22
 	sta	$ff22
@@ -4155,22 +2967,15 @@ HCVSYNC	tst	$ff00
 	sta	$ff22
 	sta	$ff22
 
-	stb	$ff22	Set CSS for beginning of next line
-
 	tst	$ff00	Wait for next hsync interrupt
 	sync
 
 	nop		Extra delay for beginning of visible line
-	ifeq	NTSC-1
-	nop
 	nop
 	nop
-	nop
-	else
-	andcc	#$ff
-	endif
 
-	sta	$ff22	Change CSS up to 7 more times per line
+	stb	$ff22	Change CSS up to 8 times per line
+	sta	$ff22
 	stb	$ff22
 	stb	$ff22
 	sta	$ff22
@@ -4178,22 +2983,15 @@ HCVSYNC	tst	$ff00
 	sta	$ff22
 	sta	$ff22
 
-	stb	$ff22	Set CSS for beginning of next line
-
 	tst	$ff00	Wait for next hsync interrupt
 	sync
 
 	nop		Extra delay for beginning of visible line
-	ifeq	NTSC-1
-	nop
 	nop
 	nop
-	nop
-	else
-	andcc	#$ff
-	endif
 
-	sta	$ff22	Change CSS up to 7 more times per line
+	stb	$ff22	Change CSS up to 8 times per line
+	sta	$ff22
 	stb	$ff22
 	stb	$ff22
 	sta	$ff22
@@ -4201,22 +2999,15 @@ HCVSYNC	tst	$ff00
 	sta	$ff22
 	sta	$ff22
 
-	stb	$ff22	Set CSS for beginning of next line
-
 	tst	$ff00	Wait for next hsync interrupt
 	sync
 
 	nop		Extra delay for beginning of visible line
-	ifeq	NTSC-1
-	nop
 	nop
 	nop
-	nop
-	else
-	andcc	#$ff
-	endif
 
-	sta	$ff22	Change CSS up to 7 more times per line
+	stb	$ff22	Change CSS up to 8 times per line
+	sta	$ff22
 	stb	$ff22
 	stb	$ff22
 	sta	$ff22
@@ -4224,22 +3015,15 @@ HCVSYNC	tst	$ff00
 	sta	$ff22
 	sta	$ff22
 
-	stb	$ff22	Set CSS for beginning of next line
-
 	tst	$ff00	Wait for next hsync interrupt
 	sync
 
 	nop		Extra delay for beginning of visible line
-	ifeq	NTSC-1
-	nop
 	nop
 	nop
-	nop
-	else
-	andcc	#$ff
-	endif
 
-	sta	$ff22	Change CSS up to 7 more times per line
+	stb	$ff22	Change CSS up to 8 times per line
+	sta	$ff22
 	stb	$ff22
 	stb	$ff22
 	sta	$ff22
@@ -4247,22 +3031,15 @@ HCVSYNC	tst	$ff00
 	sta	$ff22
 	sta	$ff22
 
-	stb	$ff22	Set CSS for beginning of next line
-
 	tst	$ff00	Wait for next hsync interrupt
 	sync
 
 	nop		Extra delay for beginning of visible line
-	ifeq	NTSC-1
-	nop
 	nop
 	nop
-	nop
-	else
-	andcc	#$ff
-	endif
 
-	sta	$ff22	Change CSS up to 7 more times per line
+	stb	$ff22	Change CSS up to 8 times per line
+	sta	$ff22
 	stb	$ff22
 	stb	$ff22
 	sta	$ff22
@@ -4270,22 +3047,15 @@ HCVSYNC	tst	$ff00
 	sta	$ff22
 	sta	$ff22
 
-	stb	$ff22	Set CSS for beginning of next line
-
 	tst	$ff00	Wait for next hsync interrupt
 	sync
 
 	nop		Extra delay for beginning of visible line
-	ifeq	NTSC-1
-	nop
 	nop
 	nop
-	nop
-	else
-	andcc	#$ff
-	endif
 
-	sta	$ff22	Change CSS up to 7 more times per line
+	stb	$ff22	Change CSS up to 8 times per line
+	sta	$ff22
 	stb	$ff22
 	stb	$ff22
 	sta	$ff22
@@ -4293,22 +3063,15 @@ HCVSYNC	tst	$ff00
 	sta	$ff22
 	sta	$ff22
 
-	stb	$ff22	Set CSS for beginning of next line
-
 	tst	$ff00	Wait for next hsync interrupt
 	sync
 
 	nop		Extra delay for beginning of visible line
-	ifeq	NTSC-1
-	nop
 	nop
 	nop
-	nop
-	else
-	andcc	#$ff
-	endif
 
-	sta	$ff22	Change CSS up to 7 more times per line
+	stb	$ff22	Change CSS up to 8 times per line
+	sta	$ff22
 	stb	$ff22
 	stb	$ff22
 	sta	$ff22
@@ -4316,22 +3079,15 @@ HCVSYNC	tst	$ff00
 	sta	$ff22
 	sta	$ff22
 
-	stb	$ff22	Set CSS for beginning of next line
-
 	tst	$ff00	Wait for next hsync interrupt
 	sync
 
 	nop		Extra delay for beginning of visible line
-	ifeq	NTSC-1
-	nop
 	nop
 	nop
-	nop
-	else
-	andcc	#$ff
-	endif
 
-	sta	$ff22	Change CSS up to 7 more times per line
+	stb	$ff22	Change CSS up to 8 times per line
+	sta	$ff22
 	stb	$ff22
 	stb	$ff22
 	sta	$ff22
@@ -4339,22 +3095,15 @@ HCVSYNC	tst	$ff00
 	sta	$ff22
 	sta	$ff22
 
-	stb	$ff22	Set CSS for beginning of next line
-
 	tst	$ff00	Wait for next hsync interrupt
 	sync
 
 	nop		Extra delay for beginning of visible line
-	ifeq	NTSC-1
-	nop
 	nop
 	nop
-	nop
-	else
-	andcc	#$ff
-	endif
 
-	sta	$ff22	Change CSS up to 7 more times per line
+	stb	$ff22	Change CSS up to 8 times per line
+	sta	$ff22
 	stb	$ff22
 	stb	$ff22
 	sta	$ff22
@@ -4362,22 +3111,15 @@ HCVSYNC	tst	$ff00
 	sta	$ff22
 	sta	$ff22
 
-	stb	$ff22	Set CSS for beginning of next line
-
 	tst	$ff00	Wait for next hsync interrupt
 	sync
 
 	nop		Extra delay for beginning of visible line
-	ifeq	NTSC-1
-	nop
 	nop
 	nop
-	nop
-	else
-	andcc	#$ff
-	endif
 
-	sta	$ff22	Change CSS up to 7 more times per line
+	stb	$ff22	Change CSS up to 8 times per line
+	sta	$ff22
 	stb	$ff22
 	stb	$ff22
 	sta	$ff22
@@ -4385,22 +3127,15 @@ HCVSYNC	tst	$ff00
 	sta	$ff22
 	sta	$ff22
 
-	stb	$ff22	Set CSS for beginning of next line
-
 	tst	$ff00	Wait for next hsync interrupt
 	sync
 
 	nop		Extra delay for beginning of visible line
-	ifeq	NTSC-1
-	nop
 	nop
 	nop
-	nop
-	else
-	andcc	#$ff
-	endif
 
-	sta	$ff22	Change CSS up to 7 more times per line
+	stb	$ff22	Change CSS up to 8 times per line
+	sta	$ff22
 	stb	$ff22
 	stb	$ff22
 	sta	$ff22
@@ -4408,22 +3143,15 @@ HCVSYNC	tst	$ff00
 	sta	$ff22
 	sta	$ff22
 
-	stb	$ff22	Set CSS for beginning of next line
-
 	tst	$ff00	Wait for next hsync interrupt
 	sync
 
 	nop		Extra delay for beginning of visible line
-	ifeq	NTSC-1
-	nop
 	nop
 	nop
-	nop
-	else
-	andcc	#$ff
-	endif
 
-	sta	$ff22	Change CSS up to 7 more times per line
+	stb	$ff22	Change CSS up to 8 times per line
+	sta	$ff22
 	stb	$ff22
 	stb	$ff22
 	sta	$ff22
@@ -4431,22 +3159,15 @@ HCVSYNC	tst	$ff00
 	sta	$ff22
 	sta	$ff22
 
-	stb	$ff22	Set CSS for beginning of next line
-
 	tst	$ff00	Wait for next hsync interrupt
 	sync
 
 	nop		Extra delay for beginning of visible line
-	ifeq	NTSC-1
-	nop
 	nop
 	nop
-	nop
-	else
-	andcc	#$ff
-	endif
 
-	sta	$ff22	Change CSS up to 7 more times per line
+	stb	$ff22	Change CSS up to 8 times per line
+	sta	$ff22
 	stb	$ff22
 	stb	$ff22
 	sta	$ff22
@@ -4454,22 +3175,15 @@ HCVSYNC	tst	$ff00
 	sta	$ff22
 	sta	$ff22
 
-	stb	$ff22	Set CSS for beginning of next line
-
 	tst	$ff00	Wait for next hsync interrupt
 	sync
 
 	nop		Extra delay for beginning of visible line
-	ifeq	NTSC-1
-	nop
 	nop
 	nop
-	nop
-	else
-	andcc	#$ff
-	endif
 
-	sta	$ff22	Change CSS up to 7 more times per line
+	stb	$ff22	Change CSS up to 8 times per line
+	sta	$ff22
 	stb	$ff22
 	stb	$ff22
 	sta	$ff22
@@ -4477,22 +3191,15 @@ HCVSYNC	tst	$ff00
 	sta	$ff22
 	sta	$ff22
 
-	stb	$ff22	Set CSS for beginning of next line
-
 	tst	$ff00	Wait for next hsync interrupt
 	sync
 
 	nop		Extra delay for beginning of visible line
-	ifeq	NTSC-1
-	nop
 	nop
 	nop
-	nop
-	else
-	andcc	#$ff
-	endif
 
-	sta	$ff22	Change CSS up to 7 more times per line
+	stb	$ff22	Change CSS up to 8 times per line
+	sta	$ff22
 	stb	$ff22
 	stb	$ff22
 	sta	$ff22
@@ -4500,22 +3207,15 @@ HCVSYNC	tst	$ff00
 	sta	$ff22
 	sta	$ff22
 
-	stb	$ff22	Set CSS for beginning of next line
-
 	tst	$ff00	Wait for next hsync interrupt
 	sync
 
 	nop		Extra delay for beginning of visible line
-	ifeq	NTSC-1
-	nop
 	nop
 	nop
-	nop
-	else
-	andcc	#$ff
-	endif
 
-	sta	$ff22	Change CSS up to 7 more times per line
+	stb	$ff22	Change CSS up to 8 times per line
+	sta	$ff22
 	stb	$ff22
 	stb	$ff22
 	sta	$ff22
@@ -4523,22 +3223,15 @@ HCVSYNC	tst	$ff00
 	sta	$ff22
 	sta	$ff22
 
-	stb	$ff22	Set CSS for beginning of next line
-
 	tst	$ff00	Wait for next hsync interrupt
 	sync
 
 	nop		Extra delay for beginning of visible line
-	ifeq	NTSC-1
-	nop
 	nop
 	nop
-	nop
-	else
-	andcc	#$ff
-	endif
 
-	sta	$ff22	Change CSS up to 7 more times per line
+	stb	$ff22	Change CSS up to 8 times per line
+	sta	$ff22
 	stb	$ff22
 	stb	$ff22
 	sta	$ff22
@@ -4546,22 +3239,15 @@ HCVSYNC	tst	$ff00
 	sta	$ff22
 	sta	$ff22
 
-	stb	$ff22	Set CSS for beginning of next line
-
 	tst	$ff00	Wait for next hsync interrupt
 	sync
 
 	nop		Extra delay for beginning of visible line
-	ifeq	NTSC-1
-	nop
 	nop
 	nop
-	nop
-	else
-	andcc	#$ff
-	endif
 
-	sta	$ff22	Change CSS up to 7 more times per line
+	stb	$ff22	Change CSS up to 8 times per line
+	sta	$ff22
 	stb	$ff22
 	stb	$ff22
 	sta	$ff22
@@ -4569,22 +3255,15 @@ HCVSYNC	tst	$ff00
 	sta	$ff22
 	sta	$ff22
 
-	stb	$ff22	Set CSS for beginning of next line
-
 	tst	$ff00	Wait for next hsync interrupt
 	sync
 
 	nop		Extra delay for beginning of visible line
-	ifeq	NTSC-1
-	nop
 	nop
 	nop
-	nop
-	else
-	andcc	#$ff
-	endif
 
-	sta	$ff22	Change CSS up to 7 more times per line
+	stb	$ff22	Change CSS up to 8 times per line
+	sta	$ff22
 	stb	$ff22
 	stb	$ff22
 	sta	$ff22
@@ -4592,22 +3271,15 @@ HCVSYNC	tst	$ff00
 	sta	$ff22
 	sta	$ff22
 
-	stb	$ff22	Set CSS for beginning of next line
-
 	tst	$ff00	Wait for next hsync interrupt
 	sync
 
 	nop		Extra delay for beginning of visible line
-	ifeq	NTSC-1
-	nop
 	nop
 	nop
-	nop
-	else
-	andcc	#$ff
-	endif
 
-	sta	$ff22	Change CSS up to 7 more times per line
+	stb	$ff22	Change CSS up to 8 times per line
+	sta	$ff22
 	stb	$ff22
 	stb	$ff22
 	sta	$ff22
@@ -4615,22 +3287,15 @@ HCVSYNC	tst	$ff00
 	sta	$ff22
 	sta	$ff22
 
-	stb	$ff22	Set CSS for beginning of next line
-
 	tst	$ff00	Wait for next hsync interrupt
 	sync
 
 	nop		Extra delay for beginning of visible line
-	ifeq	NTSC-1
-	nop
 	nop
 	nop
-	nop
-	else
-	andcc	#$ff
-	endif
 
-	sta	$ff22	Change CSS up to 7 more times per line
+	stb	$ff22	Change CSS up to 8 times per line
+	sta	$ff22
 	stb	$ff22
 	stb	$ff22
 	sta	$ff22
@@ -4638,22 +3303,15 @@ HCVSYNC	tst	$ff00
 	sta	$ff22
 	sta	$ff22
 
-	stb	$ff22	Set CSS for beginning of next line
-
 	tst	$ff00	Wait for next hsync interrupt
 	sync
 
 	nop		Extra delay for beginning of visible line
-	ifeq	NTSC-1
-	nop
 	nop
 	nop
-	nop
-	else
-	andcc	#$ff
-	endif
 
-	sta	$ff22	Change CSS up to 7 more times per line
+	stb	$ff22	Change CSS up to 8 times per line
+	sta	$ff22
 	stb	$ff22
 	stb	$ff22
 	sta	$ff22
@@ -4661,22 +3319,15 @@ HCVSYNC	tst	$ff00
 	sta	$ff22
 	sta	$ff22
 
-	stb	$ff22	Set CSS for beginning of next line
-
 	tst	$ff00	Wait for next hsync interrupt
 	sync
 
 	nop		Extra delay for beginning of visible line
-	ifeq	NTSC-1
-	nop
 	nop
 	nop
-	nop
-	else
-	andcc	#$ff
-	endif
 
-	sta	$ff22	Change CSS up to 7 more times per line
+	stb	$ff22	Change CSS up to 8 times per line
+	sta	$ff22
 	stb	$ff22
 	stb	$ff22
 	sta	$ff22
@@ -4684,22 +3335,15 @@ HCVSYNC	tst	$ff00
 	sta	$ff22
 	sta	$ff22
 
-	stb	$ff22	Set CSS for beginning of next line
-
 	tst	$ff00	Wait for next hsync interrupt
 	sync
 
 	nop		Extra delay for beginning of visible line
-	ifeq	NTSC-1
-	nop
 	nop
 	nop
-	nop
-	else
-	andcc	#$ff
-	endif
 
-	sta	$ff22	Change CSS up to 7 more times per line
+	stb	$ff22	Change CSS up to 8 times per line
+	sta	$ff22
 	stb	$ff22
 	stb	$ff22
 	sta	$ff22
@@ -4707,7 +3351,7 @@ HCVSYNC	tst	$ff00
 	sta	$ff22
 	sta	$ff22
 
-	ldb	#VSLIN2	Count lines during vblank and vertical borders
+	ldb	#$21	Count lines during vblank and vertical borders
 HCVBLNK	tst	$ff00
 	sync
 	decb
@@ -4719,7 +3363,7 @@ HCVBLNK	tst	$ff00
 SGVINIT	clr	$ffcd
 	clr	$ffcf
 
-SGVSYNC	ldb	#VBLIN2	Count lines during vblank and vertical borders
+SGVSYNC	ldb	#$26	Count lines during vblank and vertical borders
 SHCVSYN	tst	$ff00
 	sync
 	decb
@@ -4728,11 +3372,8 @@ SHCVSYN	tst	$ff00
 	ldb	#$c0
 	tst	$ff00
 	sync
-SGVACTV
-	ifeq	NTSC-1
-	nop
+SGVACTV	nop
 	andcc	#$ff
-	endif
 	lda	#$08	Need CSS preset for background color!
 	sta	$ff22
 	nop
@@ -4754,14 +3395,10 @@ SGVACTV
 	nop
 	nop
 	nop
-	ifeq	PAL-1
-	nop
-	andcc	#$ff
-	endif
 	decb
 	bne	SGVACTV
 
-	ldb	#VSLIN1	Count lines during vblank and vertical borders
+	ldb	#$1f	Count lines during vblank and vertical borders
 SHCVBLK	tst	$ff00
 	sync
 	decb
