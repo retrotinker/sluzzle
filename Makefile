@@ -2,7 +2,7 @@
 
 CFLAGS=-Wall
 
-RUN?=decb
+RUN?=mon09
 
 TARGBASE=ppmtog6c8 ppmtosg24 ppmtoflip44 \
 	paltest1.ppm
