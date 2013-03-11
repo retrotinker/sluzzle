@@ -362,81 +362,16 @@ int main(int argc, char *argv[])
 
 	fprintf(outfile, "\torg $2600\n");
 
-	fprintf(outfile, "START\tlda\t#$ff\t; Setup DP register\n");
-	fprintf(outfile, "\ttfr\ta,dp\n");
-	fprintf(outfile, "\tsetdp\t$ff\n");
-
-	fprintf(outfile, "\torcc\t#$50\t; Disable interrupts\n");
-
-	fprintf(outfile, "VINIT\tclr\t$ffc3\t; Setup G6C video mode at address $0e00\n");
-	fprintf(outfile, "\tclr\t$ffc5\n");
-	fprintf(outfile, "\tclr\t$ffc7\n");
-	fprintf(outfile, "\tclr\t$ffc9\n");
-	fprintf(outfile, "\tclr\t$ffcb\n");
-	fprintf(outfile, "\tlda\t#$e8\n");
-	fprintf(outfile, "\tsta\t$ff22\n");
-
-	fprintf(outfile, "VSTART\tldb     $ff01\t; Disable hsync interrupt generation\n");
-	fprintf(outfile, "\tandb\t#$fa\n");
-	fprintf(outfile, "\tstb     $ff01\n");
-	fprintf(outfile, "\ttst\t$ff00\n");
-
-	fprintf(outfile, "\tlda     $ff03\t; Enable vsync interrupt generation\n");
-	fprintf(outfile, "\tora     #$05\n");
-	fprintf(outfile, "\tsta     $ff03\n");
-	fprintf(outfile, "\ttst\t$ff02\n");
-
-	fprintf(outfile, "\tsync\t\t; Wait for vsync interrupt\n");
-
-	fprintf(outfile, "\tanda\t#$fa\t; Disable vsync interrupt generation\n");
-	fprintf(outfile, "\tsta     $ff03\n");
-	fprintf(outfile, "\ttst\t$ff02\n");
-
-	fprintf(outfile, "\torb     #$05\t; Enable hsync interrupt generation\n");
-	fprintf(outfile, "\tstb     $ff01\n");
-	fprintf(outfile, "\ttst\t$ff00\n");
-
-	fprintf(outfile, "*\n");
-	fprintf(outfile, "* After the program starts, vsync interrupts aren't used...\n");
-	fprintf(outfile, "*\n");
-	fprintf(outfile, "VSYNC\tldb\t#$45\t; Count lines during vblank and vertical borders\n");
-	fprintf(outfile, "HCOUNT\ttst\t$ff00\n");
-	fprintf(outfile, "\tsync\n");
-
-	fprintf(outfile, "\tdecb\n");
-	fprintf(outfile, "\tbne\tHCOUNT\n");
-
-	fprintf(outfile, "\tlda\t#$e8\t; Setup CSS options for raster effects\n");
-	fprintf(outfile, "\tldb\t#$e0\n");
-
 	for (i = 0; i < PPM_VERT_PIXELS; i++) {
 		for (j = 0; j < LINES_PER_PIXEL; j++) {
-			fprintf(outfile, "\ttst\t$ff00\t; Wait for next hsync interrupt\n");
-			fprintf(outfile, "\tsync\n");
-
-			fprintf(outfile, "\tnop\t\t; Extra delay for beginning of visible line\n");
-			fprintf(outfile, "\tnop\n");
-			fprintf(outfile, "\tnop\n");
-
+			unsigned char data = 0;
 			for (k = 0; k < BLOCKS_PER_LINE; k++) {
-				if (colorset[i][k] == 0)
-					fprintf(outfile, "\tstb\t$ff22\n");
-				else
-					fprintf(outfile, "\tsta\t$ff22\n");
+				data <<= 1;
+				data |= colorset[i][k];
 			}
+			fprintf(outfile, "\tfcb\t$%02x\n", data);
 		}
 	}
-
-	fprintf(outfile, "* Check for user break (development only)\n");
-	fprintf(outfile, "CHKUART\tlda\t$ff69\t\tCheck for serial port activity\n");
-	fprintf(outfile, "\tbita\t#$08\n");
-	fprintf(outfile, "\tbeq\tVLOOP\n");
-	fprintf(outfile, "\tlda\t$ff68\n");
-	fprintf(outfile, "\tjmp\t[$fffe]         Re-enter monitor\n");
-
-	fprintf(outfile, "VLOOP\tjmp\tVSYNC\n");
-
-	fprintf(outfile, "\tEND\tSTART\n");
 
 	fclose(outfile);
 

@@ -26,6 +26,14 @@ paltest1.s19
 paltest2.bin
 paltest2.s19
 
+# image viewer binaries
+viewg6c8.bin
+viewg6c8.s19
+viewsg24.bin
+viewsg24.s19
+viewflip44.bin
+viewflip44.s19
+
 # test images and binaries
 test.ppm
 testg6c8.asm
