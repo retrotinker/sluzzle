@@ -22,6 +22,8 @@ CSSBASE	equ	$2600
 RTOTLEN	equ	$16
 RSKPLEN	equ	$06
 
+BLKHGHT	equ	$20		If changed, need to adjust block offset math
+
 	org $2700
 START	lda	#$ff		Setup DP register
 	tfr	a,dp
@@ -2623,7 +2625,7 @@ BLBLOCK	pshs	a
 BLBLCK1	ldx	#SCNBASE
 	leax	d,x
 
-BLRWDAT	lda	#$20		Init row counter
+BLRWDAT	lda	#BLKHGHT	Init row counter
 	ldb	#$aa		Load blank-out data
 BLRWDT1	stb	,x+		Fill rows w/ blank-out data
 	stb	,x+
@@ -2647,7 +2649,7 @@ BLRWINS	ldx	#HROW0ST	Determine code offset for block =
 	lsla
 	leax	a,x
 
-	lda	#$20		Init row counter
+	lda	#BLKHGHT	Init row counter
 	ldb	#$97		Load blank-out instruction
 BLRWIN1	stb	,x		Fill rows w/ blank-out instruction
 	leax	RTOTLEN,x
@@ -2670,7 +2672,7 @@ BLRWCS1	beq	BLRWCS2		Shift CSS data mask for block
 	deca
 	bra	BLRWCS1
 
-BLRWCS2	lda	#$20		Setup CSS data row counter
+BLRWCS2	lda	#BLKHGHT	Setup CSS data row counter
 	comb			Complement CSS data mask for AND operation
 	pshs	b		Save for later
 
@@ -2682,6 +2684,148 @@ BLRWCS3	andb	,x		Apply mask to CSS data
 	bne	BLRWCS3
 
 	leas	3,s		Free remaining stack data
+	rts
+
+*
+* Copy from one block to another
+*
+*	A input block copy source, clobbered
+*	B input block copy dest, clobbered
+*	X,Y clobbered
+*
+CPBLOCK	pshs	a
+	pshs	b
+	anda	#$07		Determine data offset for src block =
+	lsla				screenbase +
+	lsla				(block / 8) * 1024 +
+	pshs	a			(block % 8) * 4
+	lda	2,s
+	anda	#$f8
+	clrb
+	lsra
+	rorb
+	addb	,s
+	bcc	CPBLCK1
+	inca
+CPBLCK1	ldx	#SCNBASE
+	leax	d,x
+	leas	1,s
+
+	lda	,s
+	anda	#$07		Determine data offset for dest block =
+	lsla				screenbase +
+	lsla				(block / 8) * 1024 +
+	pshs	a			(block % 8) * 4
+	lda	1,s
+	anda	#$f8
+	clrb
+	lsra
+	rorb
+	addb	,s
+	bcc	CPBLCK2
+	inca
+CPBLCK2	ldy	#SCNBASE
+	leay	d,y
+	leas	1,s
+
+CPRWDAT	lda	#BLKHGHT	Init row counter
+CPRWDT1	ldb	,x+		Copy rows from source to dest
+	stb	,y+
+	ldb	,x+
+	stb	,y+
+	ldb	,x+
+	stb	,y+
+	ldb	,x+
+	stb	,y+
+	leax	$1c,x
+	leay	$1c,y
+	deca
+	bne	CPRWDT1
+
+CPRWINS	ldx	#HROW0ST	Determine code offset for src block =
+	lda	1,s			codebase +
+	anda	#$f8			(block / 8) * 32 * len +
+	lsla				(block % 8) * 2
+	lsla
+	ldb	#RTOTLEN
+	mul
+	leax	d,x
+
+	lda	1,s
+	anda	#$07
+	lsla
+	leax	a,x
+
+	ldy	#HROW0ST	Determine code offset for dest block =
+	lda	,s			codebase +
+	anda	#$f8			(block / 8) * 32 * len +
+	lsla				(block % 8) * 2
+	lsla
+	ldb	#RTOTLEN
+	mul
+	leay	d,y
+
+	lda	,s
+	anda	#$07
+	lsla
+	leay	a,y
+
+	lda	#BLKHGHT	Init row counter
+CPRWIN1	ldb	,x		Copy instruction for src row...
+	stb	,y		...to destination row
+	leax	RTOTLEN,x	Advance src code offset
+	leay	RTOTLEN,y	Advance dest code offset
+	deca			Decrement row counter
+	bne	CPRWIN1
+
+CPRWCSS	ldx	#CSSBASE	Determine src CSS data offset for block =
+	ldb	1,s			CSSbase + (block / 8) * 32
+	clra
+	andb	#$f8
+	lslb
+	lslb
+	leax	d,x
+
+	ldb	#$80		Init src CSS data mask
+	lda	1,s
+	anda	#$07		Calculate block bit position
+CPRWCS1	beq	CPRWCS2		Shift CSS data mask for block
+	lsrb
+	deca
+	bra	CPRWCS1
+
+CPRWCS2	pshs	b		Save src CSS data mask
+
+	ldy	#CSSBASE	Determine dest CSS data offset for block =
+	ldb	1,s			CSSbase + (block / 8) * 32
+	clra
+	andb	#$f8
+	lslb
+	lslb
+	leay	d,y
+
+	ldb	#$80		Init dest CSS data mask
+	lda	1,s
+	anda	#$07		Calculate block bit position
+CPRWCS3	beq	CPRWCS4		Shift CSS data mask for block
+	lsrb
+	deca
+	bra	CPRWCS3
+
+CPRWCS4	pshs	b		Save dest CSS data mask
+
+	lda	#BLKHGHT	Setup CSS data row counter
+CPRWCS5	ldb	,x+		Load src CSS data, increment offset
+	andb	1,s		Mask for relevant bit
+	beq	CPRWCS6		If not set, skip setting dest (presumed clear)
+	ldb	,y		Load dest CSS data
+	orb	,s		Set relevant bit
+	stb	,y		Store dest CSS data
+CPRWCS6	leay	1,y		Increment dest CSS data offset
+	deca			Decrement row counter
+	bne	CPRWCS5
+
+	leas	4,s
 	rts
 
 	END	START
