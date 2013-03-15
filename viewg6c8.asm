@@ -2623,12 +2623,12 @@ BLBLOCK	pshs	a
 	lsra
 	rorb
 	addd	,s
-	leas	2,s
-	addb	,s
+	addb	2,s
 	bcc	BLBLCK1
 	inca
 BLBLCK1	ldx	#SCNBASE
 	leax	d,x
+	leas	3,s
 
 BLRWDAT	lda	#BLKHGHT	Init row counter
 	ldb	#$aa		Load blank-out data
@@ -2641,7 +2641,7 @@ BLRWDT1	stb	,x+		Fill rows w/ blank-out data
 	bne	BLRWDT1
 
 BLRWINS	ldx	#HROW0ST	Determine code offset for block =
-	lda	1,s			codebase +
+	lda	,s			codebase +
 	anda	#$f8			(block / 8) * 48 * len +
 	lsla				(block % 8) * 2
 	pshs	a
@@ -2652,7 +2652,7 @@ BLRWINS	ldx	#HROW0ST	Determine code offset for block =
 	leax	d,x
 	leas	1,s
 
-	lda	1,s
+	lda	,s
 	anda	#$07
 	lsla
 	leax	a,x
@@ -2665,7 +2665,7 @@ BLRWIN1	stb	,x		Fill rows w/ blank-out instruction
 	bne	BLRWIN1
 
 BLRWCSS	ldx	#CSSBASE	Determine CSS data offset for block =
-	ldb	1,s			CSSbase + (block / 8) * 48
+	ldb	,s			CSSbase + (block / 8) * 48
 	clra
 	andb	#$f8
 	lslb
@@ -2676,7 +2676,7 @@ BLRWCSS	ldx	#CSSBASE	Determine CSS data offset for block =
 	leas	1,s
 
 	ldb	#$80		Init CSS data mask
-	lda	1,s
+	lda	,s
 	anda	#$07		Calculate block bit position
 BLRWCS1	beq	BLRWCS2		Shift CSS data mask for block
 	lsrb
@@ -2694,7 +2694,7 @@ BLRWCS3	andb	,x		Apply mask to CSS data
 	deca			Decrement row counter
 	bne	BLRWCS3
 
-	leas	3,s		Free remaining stack data
+	leas	2,s		Free remaining stack data
 	rts
 
 *
