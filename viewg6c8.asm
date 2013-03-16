@@ -62,7 +62,7 @@ MODIFY3	dec	,s		Decrement instruction counter
 
 MODIFY4	leas	2,s		Clean-up stack
 
-	lda	#$1f		Blank-out bottom-rightmost block
+	lda	#$0f		Blank-out bottom-rightmost block
 	lbsr	BLBLOCK
 
 VINIT	clr	$ffc3		Setup G6C video mode at address $0e00
@@ -2610,15 +2610,14 @@ VLOOP	jmp	VSYNC
 *	X,B clobbered
 *
 BLBLOCK	pshs	a
-	anda	#$07		Determine data offset for block =
+	anda	#$03		Determine data offset for block =
 	lsla				screenbase +
-	lsla				(block / 8) * 1536 +
-	pshs	a			(block % 8) * 4
+	lsla				(block / 4) * 1536 +
+	lsla				(block % 4) * 8
+	pshs	a
 	lda	1,s
-	anda	#$f8
+	anda	#$fc
 	clrb
-	lsra
-	rorb
 	pshs	d
 	lsra
 	rorb
@@ -2636,14 +2635,19 @@ BLRWDT1	stb	,x+		Fill rows w/ blank-out data
 	stb	,x+
 	stb	,x+
 	stb	,x+
-	leax	$1c,x
+	stb	,x+
+	stb	,x+
+	stb	,x+
+	stb	,x+
+	leax	$18,x
 	deca
 	bne	BLRWDT1
 
 BLRWINS	ldx	#HROW0ST	Determine code offset for block =
 	lda	,s			codebase +
-	anda	#$f8			(block / 8) * 48 * len +
-	lsla				(block % 8) * 2
+	anda	#$fc			(block / 4) * 48 * len +
+	lsla				(block % 4) * 4
+	lsla
 	pshs	a
 	lsla
 	adda	,s
@@ -2653,21 +2657,24 @@ BLRWINS	ldx	#HROW0ST	Determine code offset for block =
 	leas	1,s
 
 	lda	,s
-	anda	#$07
+	anda	#$03
+	lsla
 	lsla
 	leax	a,x
 
 	lda	#BLKHGHT	Init row counter
 	ldb	#$97		Load blank-out instruction
 BLRWIN1	stb	,x		Fill rows w/ blank-out instruction
+	stb	2,x
 	leax	RTOTLEN,x
 	deca
 	bne	BLRWIN1
 
 BLRWCSS	ldx	#CSSBASE	Determine CSS data offset for block =
-	ldb	,s			CSSbase + (block / 8) * 48
+	ldb	,s			CSSbase + (block / 4) * 48
 	clra
-	andb	#$f8
+	andb	#$fc
+	lslb
 	lslb
 	pshs	b
 	lslb
@@ -2675,10 +2682,11 @@ BLRWCSS	ldx	#CSSBASE	Determine CSS data offset for block =
 	leax	d,x
 	leas	1,s
 
-	ldb	#$80		Init CSS data mask
+	ldb	#$c0		Init CSS data mask
 	lda	,s
-	anda	#$07		Calculate block bit position
+	anda	#$03		Calculate block bit position
 BLRWCS1	beq	BLRWCS2		Shift CSS data mask for block
+	lsrb
 	lsrb
 	deca
 	bra	BLRWCS1
@@ -2706,15 +2714,14 @@ BLRWCS3	andb	,x		Apply mask to CSS data
 *
 CPBLOCK	pshs	a
 	pshs	b
-	anda	#$07		Determine data offset for src block =
+	anda	#$03		Determine data offset for src block =
 	lsla				screenbase +
-	lsla				(block / 8) * 1536 +
-	pshs	a			(block % 8) * 4
+	lsla				(block / 4) * 1536 +
+	lsla				(block % 4) * 8
+	pshs	a
 	lda	2,s
-	anda	#$f8
+	anda	#$fc
 	clrb
-	lsra
-	rorb
 	pshs	d
 	lsra
 	rorb
@@ -2727,15 +2734,14 @@ CPBLCK1	ldx	#SCNBASE
 	leas	3,s
 
 	lda	,s
-	anda	#$07		Determine data offset for dest block =
+	anda	#$03		Determine data offset for dest block =
 	lsla				screenbase +
-	lsla				(block / 8) * 1536 +
-	pshs	a			(block % 8) * 4
+	lsla				(block / 4) * 1536 +
+	lsla				(block % 4) * 8
+	pshs	a
 	lda	1,s
-	anda	#$f8
+	anda	#$fc
 	clrb
-	lsra
-	rorb
 	pshs	d
 	lsra
 	rorb
@@ -2756,15 +2762,24 @@ CPRWDT1	ldb	,x+		Copy rows from source to dest
 	stb	,y+
 	ldb	,x+
 	stb	,y+
-	leax	$1c,x
-	leay	$1c,y
+	ldb	,x+
+	stb	,y+
+	ldb	,x+
+	stb	,y+
+	ldb	,x+
+	stb	,y+
+	ldb	,x+
+	stb	,y+
+	leax	$18,x
+	leay	$18,y
 	deca
 	bne	CPRWDT1
 
 CPRWINS	ldx	#HROW0ST	Determine code offset for src block =
 	lda	1,s			codebase +
-	anda	#$f8			(block / 8) * 48 * len +
-	lsla				(block % 8) * 2
+	anda	#$fc			(block / 4) * 48 * len +
+	lsla				(block % 4) * 4
+	lsla
 	pshs	a
 	lsla
 	adda	,s
@@ -2774,14 +2789,16 @@ CPRWINS	ldx	#HROW0ST	Determine code offset for src block =
 	leas	1,s
 
 	lda	1,s
-	anda	#$07
+	anda	#$03
+	lsla
 	lsla
 	leax	a,x
 
 	ldy	#HROW0ST	Determine code offset for dest block =
 	lda	,s			codebase +
-	anda	#$f8			(block / 8) * 48 * len +
-	lsla				(block % 8) * 2
+	anda	#$fc			(block / 4) * 48 * len +
+	lsla				(block % 4) * 4
+	lsla
 	pshs	a
 	lsla
 	adda	,s
@@ -2791,22 +2808,26 @@ CPRWINS	ldx	#HROW0ST	Determine code offset for src block =
 	leas	1,s
 
 	lda	,s
-	anda	#$07
+	anda	#$03
+	lsla
 	lsla
 	leay	a,y
 
 	lda	#BLKHGHT	Init row counter
 CPRWIN1	ldb	,x		Copy instruction for src row...
 	stb	,y		...to destination row
+	ldb	2,x		Ditto...
+	stb	2,y		...ditto
 	leax	RTOTLEN,x	Advance src code offset
 	leay	RTOTLEN,y	Advance dest code offset
 	deca			Decrement row counter
 	bne	CPRWIN1
 
 CPRWCSS	ldx	#CSSBASE	Determine src CSS data offset for block =
-	ldb	1,s			CSSbase + (block / 8) * 48
+	ldb	1,s			CSSbase + (block / 4) * 48
 	clra
-	andb	#$f8
+	andb	#$fc
+	lslb
 	lslb
 	pshs	b
 	lslb
@@ -2816,18 +2837,22 @@ CPRWCSS	ldx	#CSSBASE	Determine src CSS data offset for block =
 
 	ldb	#$80		Init src CSS data mask
 	lda	1,s
-	anda	#$07		Calculate block bit position
+	anda	#$03		Calculate block bit position
 CPRWCS1	beq	CPRWCS2		Shift CSS data mask for block
+	lsrb
 	lsrb
 	deca
 	bra	CPRWCS1
 
-CPRWCS2	pshs	b		Save src CSS data mask
+CPRWCS2	pshs	b		Save src even CSS data mask
+	lsrb
+	pshs	b		Save src odd CSS data mask
 
 	ldy	#CSSBASE	Determine dest CSS data offset for block =
-	ldb	1,s			CSSbase + (block / 8) * 48
+	ldb	2,s			CSSbase + (block / 4) * 48
 	clra
-	andb	#$f8
+	andb	#$fc
+	lslb
 	lslb
 	pshs	b
 	lslb
@@ -2836,27 +2861,36 @@ CPRWCS2	pshs	b		Save src CSS data mask
 	leas	1,s
 
 	ldb	#$80		Init dest CSS data mask
-	lda	1,s
-	anda	#$07		Calculate block bit position
+	lda	2,s
+	anda	#$03		Calculate block bit position
 CPRWCS3	beq	CPRWCS4		Shift CSS data mask for block
+	lsrb
 	lsrb
 	deca
 	bra	CPRWCS3
 
-CPRWCS4	pshs	b		Save dest CSS data mask
+CPRWCS4	pshs	b		Save dest even CSS data mask
+	lsrb
+	pshs	b		Save dest odd CSS data mask
 
 	lda	#BLKHGHT	Setup CSS data row counter
-CPRWCS5	ldb	,x+		Load src CSS data, increment offset
-	andb	1,s		Mask for relevant bit
+CPRWCS5	ldb	,x		Load src CSS data
+	andb	3,s		Mask for relevant bit (even)
 	beq	CPRWCS6		If not set, skip setting dest (presumed clear)
 	ldb	,y		Load dest CSS data
-	orb	,s		Set relevant bit
+	orb	1,s		Set relevant bit (even)
 	stb	,y		Store dest CSS data
-CPRWCS6	leay	1,y		Increment dest CSS data offset
+CPRWCS6	ldb	,x+		Load src CSS data, increment offset
+	andb	2,s		Mask for relevant bit (odd)
+	beq	CPRWCS7		If not set, skip setting dest (presumed clear)
+	ldb	,y		Load dest CSS data
+	orb	,s		Set relevant bit (odd)
+	stb	,y		Store dest CSS data
+CPRWCS7	leay	1,y		Increment dest CSS data offset
 	deca			Decrement row counter
 	bne	CPRWCS5
 
-	leas	4,s
+	leas	6,s
 	rts
 
 	END	START
