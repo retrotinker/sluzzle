@@ -62,8 +62,9 @@ MODIFY3	dec	,s		Decrement instruction counter
 
 MODIFY4	leas	2,s		Clean-up stack
 
-	lda	#$0f		Blank-out bottom-rightmost block
-	lbsr	BLBLOCK
+	lda	#$0f
+	sta	CURBLK		Set bottom-rightmost block as current block
+	lbsr	BLBLOCK		Blank-out bottom-rightmost block
 
 VINIT	clr	$ffc3		Setup G6C video mode at address $0e00
 	clr	$ffc5
@@ -2600,8 +2601,78 @@ CHKUART	lda	$ff69		Check for serial port activity
 	bita	#$08
 	beq	VLOOP
 	lda	$ff68
-	jmp	[$fffe]         Re-enter monitor
+	jmp	CHKCTRL
 VLOOP	jmp	VSYNC
+
+*
+* Check control input
+*
+*	A input value, clobbered
+*	B clobbered
+*
+* NOTE: After control processing, jumps to VSTART instead of VSYNC.
+*	Otherwise, would have to track Hsync properly...
+*
+CHKCTRL	cmpa	#$6b
+	beq	CKCTLUP
+	cmpa	#$6a
+	beq	CKCTLDN
+	cmpa	#$68
+	beq	CKCTLLT
+	cmpa	#$6c
+	beq	CKCTLRT
+
+	bra	CKCTLEX
+
+CKCTLUP	lda	#$0c		Verify not on top row
+	anda	CURBLK
+	beq	CKCTLLP
+
+	lda	CURBLK		Subtract 4 from block number
+	suba	#$04
+
+	bra	CKCTLMV		Move the block
+
+CKCTLDN	lda	#$0c		Verify not on bottom row
+	anda	CURBLK
+	cmpa	#$0c
+	beq	CKCTLLP
+
+	lda	CURBLK		Add 4 to block number
+	adda	#$04
+
+	bra	CKCTLMV		Move the block
+
+CKCTLLT	lda	#$03		Verify not on left column
+	anda	CURBLK
+	beq	CKCTLLP
+
+	lda	CURBLK		Subtract 1 from block number
+	deca
+
+	bra	CKCTLMV		Move the block
+
+CKCTLRT	lda	#$03		Verify not on right column
+	anda	CURBLK
+	cmpa	#$03
+	beq	CKCTLLP
+
+	lda	CURBLK		Add 1 to block number
+	inca
+
+	bra	CKCTLMV		Move the block
+
+CKCTLMV	pshs	a		Save new block for blanking
+	ldb	CURBLK		Load current block for copying
+	sta	CURBLK		Save new block as new current block
+	lbsr	CPBLOCK		Copy new block to old block
+
+	puls	a		Restore new block and blank it
+	bsr	BLBLOCK
+
+CKCTLLP	jmp	VSTART
+
+CKCTLEX	jmp	[$fffe]         Re-enter monitor
 
 *
 * Blank-out a block
@@ -2892,5 +2963,7 @@ CPRWCS7	leay	1,y		Increment dest CSS data offset
 
 	leas	6,s
 	rts
+
+CURBLK	rmb	1
 
 	END	START
