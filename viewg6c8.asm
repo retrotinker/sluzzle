@@ -2702,15 +2702,15 @@ BLBLCK1	ldx	#SCNBASE
 
 BLRWDAT	lda	#BLKHGHT	Init row counter
 	ldb	#$aa		Load blank-out data
-BLRWDT1	stb	,x+		Fill rows w/ blank-out data
-	stb	,x+
-	stb	,x+
-	stb	,x+
-	stb	,x+
-	stb	,x+
-	stb	,x+
-	stb	,x+
-	leax	$18,x
+BLRWDT1	stb	,x		Fill rows w/ blank-out data
+	stb	1,x
+	stb	2,x
+	stb	3,x
+	stb	4,x
+	stb	5,x
+	stb	6,x
+	stb	7,x
+	leax	$20,x
 	deca
 	bne	BLRWDT1
 
@@ -2825,24 +2825,24 @@ CPBLCK2	ldy	#SCNBASE
 	leas	3,s
 
 CPRWDAT	lda	#BLKHGHT	Init row counter
-CPRWDT1	ldb	,x+		Copy rows from source to dest
-	stb	,y+
-	ldb	,x+
-	stb	,y+
-	ldb	,x+
-	stb	,y+
-	ldb	,x+
-	stb	,y+
-	ldb	,x+
-	stb	,y+
-	ldb	,x+
-	stb	,y+
-	ldb	,x+
-	stb	,y+
-	ldb	,x+
-	stb	,y+
-	leax	$18,x
-	leay	$18,y
+CPRWDT1	ldb	,x		Copy rows from source to dest
+	stb	,y
+	ldb	1,x
+	stb	1,y
+	ldb	2,x
+	stb	2,y
+	ldb	3,x
+	stb	3,y
+	ldb	4,x
+	stb	4,y
+	ldb	5,x
+	stb	5,y
+	ldb	6,x
+	stb	6,y
+	ldb	7,x
+	stb	7,y
+	leax	$20,x
+	leay	$20,y
 	deca
 	bne	CPRWDT1
 
