@@ -2983,6 +2983,34 @@ CPRWCS7	leay	1,y		Increment dest CSS data offset
 	leas	6,s
 	rts
 
+*
+* Advance the LFSR value and return pseudo-random value
+*
+*	A returns pseudo-random value
+*	B gets clobbered
+*
+* 	Wikipedia article on LFSR cites this polynomial for a maximal 8-bit LFSR:
+*
+*		x8 + x6 + x5 + x4 + 1
+*
+*	http://en.wikipedia.org/wiki/Linear_feedback_shift_register
+*
+LFSRGET	lda	LFSRDAT		Get MSB of LFSR data
+	eora	#$08		Capture x4 of LFSR polynomial
+	lsla
+	eora	LFSRDAT		Capture X5 of LFSR polynomial
+	lsla
+	eora	LFSRDAT		Capture X6 of LFSR polynomial
+	lsla
+	lsla
+	eora	LFSRDAT		Capture X8 of LFSR polynomial
+	lsla			Move result to Carry bit of CC
+	lda	LFSRDAT		Get all of LFSR data
+	rola			Shift result into 8-bit LFSR
+	sta	LFSRDAT		Store the result
+	rts
+
 CURBLK	rmb	1
+LFSRDAT	rmb	1
 
 	END	START
