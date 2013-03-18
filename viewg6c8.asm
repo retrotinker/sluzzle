@@ -66,6 +66,8 @@ MODIFY4	leas	2,s		Clean-up stack
 	sta	CURBLK		Set bottom-rightmost block as current block
 	lbsr	BLBLOCK		Blank-out bottom-rightmost block
 
+	lbsr	SHUFFLE		Shuffle the blocks...
+
 VINIT	clr	$ffc3		Setup G6C video mode at address $0e00
 	clr	$ffc5
 	clr	$ffc7
@@ -2639,6 +2641,44 @@ CKCTLRT	bsr	MOVERT
 CKCTLLP	jmp	VSTART
 
 CKCTLEX	jmp	[$fffe]         Re-enter monitor
+
+*
+* Shuffle the blocks!
+*
+*	A,B get clobbered
+*	X gets clobbered
+*
+SHUFFLE	lda	#$10		Setup counter for shuffling moves
+	pshs	a
+
+SHUFFL1	lbsr	LFSRGET		Pick a "random" number
+	anda	#$06		Mask to four directional values
+
+	ldx	#SHUFFJT	Setup jump table
+	jmp	a,x		Jump to offset for directional choice
+
+SHUFFJT	bra	SHUFFUP		Jump table, padded to 4 bytes per entry
+	bra	SHUFFDN
+	bra	SHUFFLT
+	bra	SHUFFRT
+
+SHUFFUP	bsr	MOVEUP
+	bra	SHUFFLP
+
+SHUFFDN	bsr	MOVEDN
+	bra	SHUFFLP
+
+SHUFFLT	bsr	MOVELT
+	bra	SHUFFLP
+
+SHUFFRT	bsr	MOVERT
+	bra	SHUFFLP
+
+SHUFFLP	dec	,s
+	bne	SHUFFL1
+
+	leas	1,s
+	rts
 
 *
 * Move a block -- multiple entry points
