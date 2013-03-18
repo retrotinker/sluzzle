@@ -2624,45 +2624,66 @@ CHKCTRL	cmpa	#$6b
 
 	bra	CKCTLEX
 
-CKCTLUP	lda	#$0c		Verify not on top row
+CKCTLUP	bsr	MOVEUP
+	bra	CKCTLLP
+
+CKCTLDN	bsr	MOVEDN
+	bra	CKCTLLP
+
+CKCTLLT	bsr	MOVELT
+	bra	CKCTLLP
+
+CKCTLRT	bsr	MOVERT
+;	bra	CKCTLLP
+
+CKCTLLP	jmp	VSTART
+
+CKCTLEX	jmp	[$fffe]         Re-enter monitor
+
+*
+* Move a block -- multiple entry points
+*
+*	A,B clobbered
+*
+MOVEUP	lda	#$0c		Verify not on top row
 	anda	CURBLK
-	beq	CKCTLLP
+	beq	MOVEXIT
 
 	lda	CURBLK		Subtract 4 from block number
 	suba	#$04
 
-	bra	CKCTLMV		Move the block
+	bra	MOVEFIN		Move the block
 
-CKCTLDN	lda	#$0c		Verify not on bottom row
+MOVEDN	lda	#$0c		Verify not on bottom row
 	anda	CURBLK
 	cmpa	#$0c
-	beq	CKCTLLP
+	beq	MOVEXIT
 
 	lda	CURBLK		Add 4 to block number
 	adda	#$04
 
-	bra	CKCTLMV		Move the block
+	bra	MOVEFIN		Move the block
 
-CKCTLLT	lda	#$03		Verify not on left column
+MOVELT	lda	#$03		Verify not on left column
 	anda	CURBLK
-	beq	CKCTLLP
+	beq	MOVEXIT
 
 	lda	CURBLK		Subtract 1 from block number
 	deca
 
-	bra	CKCTLMV		Move the block
+	bra	MOVEFIN		Move the block
 
-CKCTLRT	lda	#$03		Verify not on right column
+MOVERT	lda	#$03		Verify not on right column
 	anda	CURBLK
 	cmpa	#$03
-	beq	CKCTLLP
+	beq	MOVEXIT
 
 	lda	CURBLK		Add 1 to block number
 	inca
 
-	bra	CKCTLMV		Move the block
+;	bra	MOVEFIN		Move the block
 
-CKCTLMV	pshs	a		Save new block for blanking
+MOVEFIN	pshs	a		Save new block for blanking
 	ldb	CURBLK		Load current block for copying
 	sta	CURBLK		Save new block as new current block
 	lbsr	CPBLOCK		Copy new block to old block
@@ -2670,9 +2691,7 @@ CKCTLMV	pshs	a		Save new block for blanking
 	puls	a		Restore new block and blank it
 	bsr	BLBLOCK
 
-CKCTLLP	jmp	VSTART
-
-CKCTLEX	jmp	[$fffe]         Re-enter monitor
+MOVEXIT	rts
 
 *
 * Blank-out a block
