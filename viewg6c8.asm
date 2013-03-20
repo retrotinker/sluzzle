@@ -2634,20 +2634,38 @@ CHKCTRL	cmpa	#$6b
 	bra	CKCTLEX
 
 CKCTLUP	bsr	MOVEUP
-	bra	CKCTLLP
+	bra	CKCTLWN
 
 CKCTLDN	bsr	MOVEDN
-	bra	CKCTLLP
+	bra	CKCTLWN
 
-CKCTLLT	bsr	MOVELT
-	bra	CKCTLLP
+CKCTLLT	lbsr	MOVELT
+	bra	CKCTLWN
 
-CKCTLRT	bsr	MOVERT
-;	bra	CKCTLLP
+CKCTLRT	lbsr	MOVERT
+;	bra	CKCTLWN
+
+CKCTLWN	ldx	#BLOKMAP	Point at block map
+	lda	#$0f		Initialize offset
+
+CKCTLW1	cmpa	a,x		Compare offset to value at offset
+	bne	CKCTLLP		If no match, then loop
+
+	deca			Decrement offset
+	bne	CKCTLW1		If not zero, keep checking
+
+	cmpa	a,x		Still have to check offset zero
+	beq	GAMEWON		Match?  Winner!
 
 CKCTLLP	jmp	VSTART
 
 CKCTLEX	jmp	[$fffe]         Re-enter monitor
+
+GAMEWON	lda	$ff69		Check for serial port activity
+	bita	#$08
+	beq	GAMEWON
+	lda	$ff68
+	jmp	[$fffe]
 
 *
 * Shuffle the blocks!
