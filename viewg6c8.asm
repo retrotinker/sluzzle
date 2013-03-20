@@ -2648,36 +2648,48 @@ CKCTLEX	jmp	[$fffe]         Re-enter monitor
 *	A,B get clobbered
 *	X gets clobbered
 *
-SHUFFLE	lda	#$10		Setup counter for shuffling moves
+SHUFFLE	lda	#$30		Setup counter for shuffling moves
 	pshs	a
+	ldb	#$06		Dummy-up forbidden direction for first move
+	pshs	b
 
 SHUFFL1	lbsr	LFSRGET		Pick a "random" number
-	anda	#$06		Mask to four directional values
+	anda	#$06		Mask to four directional values (shifted left)
+
+	cmpa	,s		Compare to forbidden direction
+	beq	SHUFFL1		If matches, try again
+	tfr	a,b		Compute next forbidden direction...
+	eorb	#$02		...which is really just the opposite direction
+	stb	,s		Store the new forbidden direction
 
 	ldx	#SHUFFJT	Setup jump table
 	jmp	a,x		Jump to offset for directional choice
 
-SHUFFJT	bra	SHUFFUP		Jump table, padded to 4 bytes per entry
+SHUFFJT	bra	SHUFFUP		Jump table, (2 bytes per entry)
 	bra	SHUFFDN
 	bra	SHUFFLT
 	bra	SHUFFRT
 
-SHUFFUP	bsr	MOVEUP
+SHUFFUP	bsr	MOVEUP		Try to move up...
+	bcs	SHUFFL1		Failed?  Then try again...
 	bra	SHUFFLP
 
-SHUFFDN	bsr	MOVEDN
+SHUFFDN	bsr	MOVEDN		Try to move down...
+	bcs	SHUFFL1		Failed?  Then try again...
 	bra	SHUFFLP
 
-SHUFFLT	bsr	MOVELT
+SHUFFLT	bsr	MOVELT		Try to move left...
+	bcs	SHUFFL1		Failed?  Then try again...
 	bra	SHUFFLP
 
-SHUFFRT	bsr	MOVERT
+SHUFFRT	bsr	MOVERT		Try to move right...
+	bcs	SHUFFL1		Failed?  Then try again...
 	bra	SHUFFLP
 
-SHUFFLP	dec	,s
+SHUFFLP	dec	1,s
 	bne	SHUFFL1
 
-	leas	1,s
+	leas	2,s
 	rts
 
 *
@@ -2687,7 +2699,7 @@ SHUFFLP	dec	,s
 *
 MOVEUP	lda	#$0c		Verify not on top row
 	anda	CURBLK
-	beq	MOVEXIT
+	beq	MOVFAIL
 
 	lda	CURBLK		Subtract 4 from block number
 	suba	#$04
@@ -2697,7 +2709,7 @@ MOVEUP	lda	#$0c		Verify not on top row
 MOVEDN	lda	#$0c		Verify not on bottom row
 	anda	CURBLK
 	cmpa	#$0c
-	beq	MOVEXIT
+	beq	MOVFAIL
 
 	lda	CURBLK		Add 4 to block number
 	adda	#$04
@@ -2706,7 +2718,7 @@ MOVEDN	lda	#$0c		Verify not on bottom row
 
 MOVELT	lda	#$03		Verify not on left column
 	anda	CURBLK
-	beq	MOVEXIT
+	beq	MOVFAIL
 
 	lda	CURBLK		Subtract 1 from block number
 	deca
@@ -2716,12 +2728,15 @@ MOVELT	lda	#$03		Verify not on left column
 MOVERT	lda	#$03		Verify not on right column
 	anda	CURBLK
 	cmpa	#$03
-	beq	MOVEXIT
+	beq	MOVFAIL
 
 	lda	CURBLK		Add 1 to block number
 	inca
 
-;	bra	MOVEFIN		Move the block
+	bra	MOVEFIN		Move the block
+
+MOVFAIL	orcc	#$01		Indicate move failure
+	bra	MOVEXIT
 
 MOVEFIN	pshs	a		Save new block for blanking
 	ldb	CURBLK		Load current block for copying
@@ -2730,6 +2745,8 @@ MOVEFIN	pshs	a		Save new block for blanking
 
 	puls	a		Restore new block and blank it
 	bsr	BLBLOCK
+
+	andcc	#$fe		Indicate move success
 
 MOVEXIT	rts
 
