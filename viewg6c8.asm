@@ -2610,62 +2610,8 @@ CHKUART	lda	$ff69		Check for serial port activity
 	bita	#$08
 	beq	VLOOP
 	lda	$ff68
-	jmp	CHKCTRL
+	jmp	CHKINPT
 VLOOP	jmp	VSYNC
-
-*
-* Check control input
-*
-*	A input value, clobbered
-*	B clobbered
-*
-* NOTE: After control processing, jumps to VSTART instead of VSYNC.
-*	Otherwise, would have to track Hsync properly...
-*
-CHKCTRL	cmpa	#$6b
-	beq	CKCTLUP
-	cmpa	#$6a
-	beq	CKCTLDN
-	cmpa	#$68
-	beq	CKCTLLT
-	cmpa	#$6c
-	beq	CKCTLRT
-
-	bra	CKCTLEX
-
-CKCTLUP	bsr	MOVEUP
-	bra	CKCTLWN
-
-CKCTLDN	bsr	MOVEDN
-	bra	CKCTLWN
-
-CKCTLLT	lbsr	MOVELT
-	bra	CKCTLWN
-
-CKCTLRT	lbsr	MOVERT
-;	bra	CKCTLWN
-
-CKCTLWN	ldx	#BLOKMAP	Point at block map
-	lda	#$0f		Initialize offset
-
-CKCTLW1	cmpa	a,x		Compare offset to value at offset
-	bne	CKCTLLP		If no match, then loop
-
-	deca			Decrement offset
-	bne	CKCTLW1		If not zero, keep checking
-
-	cmpa	a,x		Still have to check offset zero
-	beq	GAMEWON		Match?  Winner!
-
-CKCTLLP	jmp	VSTART
-
-CKCTLEX	jmp	[$fffe]         Re-enter monitor
-
-GAMEWON	lda	$ff69		Check for serial port activity
-	bita	#$08
-	beq	GAMEWON
-	lda	$ff68
-	jmp	[$fffe]
 
 *
 * Shuffle the blocks!
@@ -2716,6 +2662,60 @@ SHUFFLP	dec	1,s
 
 	leas	2,s
 	rts
+
+*
+* Check control input
+*
+*	A input value, clobbered
+*	B clobbered
+*
+* NOTE: After control processing, jumps to VSTART instead of VSYNC.
+*	Otherwise, would have to track Hsync properly...
+*
+CHKINPT	cmpa	#$6b
+	beq	CKINPUP
+	cmpa	#$6a
+	beq	CKINPDN
+	cmpa	#$68
+	beq	CKINPLT
+	cmpa	#$6c
+	beq	CKINPRT
+
+	bra	CKINPEX
+
+CKINPUP	bsr	MOVEUP
+	bra	CKINPGW
+
+CKINPDN	bsr	MOVEDN
+	bra	CKINPGW
+
+CKINPLT	bsr	MOVELT
+	bra	CKINPGW
+
+CKINPRT	bsr	MOVERT
+;	bra	CKINPGW
+
+CKINPGW	ldx	#BLOKMAP	Point at block map
+	lda	#$0f		Initialize offset
+
+CKINGW1	cmpa	a,x		Compare offset to value at offset
+	bne	CKINPLP		If no match, then loop
+
+	deca			Decrement offset
+	bne	CKINGW1		If not zero, keep checking
+
+	cmpa	a,x		Still have to check offset zero
+	beq	GAMEWON		Match?  Winner!
+
+CKINPLP	jmp	VSTART
+
+CKINPEX	jmp	[$fffe]         Re-enter monitor
+
+GAMEWON	lda	$ff69		Check for serial port activity
+	bita	#$08
+	beq	GAMEWON
+	lda	$ff68
+	jmp	[$fffe]
 
 *
 * Move a block -- multiple entry points
