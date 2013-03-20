@@ -62,8 +62,15 @@ MODIFY3	dec	,s		Decrement instruction counter
 
 MODIFY4	leas	2,s		Clean-up stack
 
+	ldx	#BLOKMAP	Initialize block map
 	lda	#$0f
-	sta	CURBLK		Set bottom-rightmost block as current block
+BMINILP	sta	a,x
+	deca
+	bne	BMINILP
+	sta	,x
+
+	lda	#$0f
+	sta	CURBLOK		Set bottom-rightmost block as current block
 	lbsr	BLBLOCK		Blank-out bottom-rightmost block
 
 	lbsr	SHUFFLE		Shuffle the blocks...
@@ -2696,41 +2703,42 @@ SHUFFLP	dec	1,s
 * Move a block -- multiple entry points
 *
 *	A,B clobbered
+*	X clobbered
 *
 MOVEUP	lda	#$0c		Verify not on top row
-	anda	CURBLK
+	anda	CURBLOK
 	beq	MOVFAIL
 
-	lda	CURBLK		Subtract 4 from block number
+	lda	CURBLOK		Subtract 4 from block number
 	suba	#$04
 
 	bra	MOVEFIN		Move the block
 
 MOVEDN	lda	#$0c		Verify not on bottom row
-	anda	CURBLK
+	anda	CURBLOK
 	cmpa	#$0c
 	beq	MOVFAIL
 
-	lda	CURBLK		Add 4 to block number
+	lda	CURBLOK		Add 4 to block number
 	adda	#$04
 
 	bra	MOVEFIN		Move the block
 
 MOVELT	lda	#$03		Verify not on left column
-	anda	CURBLK
+	anda	CURBLOK
 	beq	MOVFAIL
 
-	lda	CURBLK		Subtract 1 from block number
+	lda	CURBLOK		Subtract 1 from block number
 	deca
 
 	bra	MOVEFIN		Move the block
 
 MOVERT	lda	#$03		Verify not on right column
-	anda	CURBLK
+	anda	CURBLOK
 	cmpa	#$03
 	beq	MOVFAIL
 
-	lda	CURBLK		Add 1 to block number
+	lda	CURBLOK		Add 1 to block number
 	inca
 
 	bra	MOVEFIN		Move the block
@@ -2738,9 +2746,23 @@ MOVERT	lda	#$03		Verify not on right column
 MOVFAIL	orcc	#$01		Indicate move failure
 	bra	MOVEXIT
 
-MOVEFIN	pshs	a		Save new block for blanking
-	ldb	CURBLK		Load current block for copying
-	sta	CURBLK		Save new block as new current block
+MOVEFIN	pshs	a		Save new block number for later
+
+	ldx	#BLOKMAP	Point at block map for update
+	ldb	a,x		Get old map value for new block
+	pshs	b		Save old map value for new block
+
+	lda	CURBLOK		Load current block number for update
+	ldb	a,x		Get old map value for old block
+	lda	1,s		Restore new block number for update
+	stb	a,x		Store new map value for new block
+	lda	CURBLOK		Load current block number
+	puls	b		Restore old map value for new block
+	stb	a,x		Store new map value for old block
+
+	lda	,s		Restore new block number for copying
+	ldb	CURBLOK		Load current block number for copying
+	sta	CURBLOK		Save new block as new current block
 	lbsr	CPBLOCK		Copy new block to old block
 
 	puls	a		Restore new block and blank it
@@ -3067,7 +3089,9 @@ LFSRGET	lda	LFSRDAT		Get MSB of LFSR data
 	sta	LFSRDAT		Store the result
 	rts
 
-CURBLK	rmb	1
+CURBLOK	rmb	1
 LFSRDAT	rmb	1
+
+BLOKMAP	rmb	16
 
 	END	START
