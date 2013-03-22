@@ -2641,15 +2641,15 @@ SHUFFJT	bra	SHUFFUP		Jump table, (2 bytes per entry)
 	bra	SHUFFLT
 	bra	SHUFFRT
 
-SHUFFUP	bsr	MOVEUP		Try to move up...
+SHUFFUP	lbsr	MOVEUP		Try to move up...
 	bcs	SHUFFL1		Failed?  Then try again...
 	bra	SHUFFLP
 
-SHUFFDN	bsr	MOVEDN		Try to move down...
+SHUFFDN	lbsr	MOVEDN		Try to move down...
 	bcs	SHUFFL1		Failed?  Then try again...
 	bra	SHUFFLP
 
-SHUFFLT	bsr	MOVELT		Try to move left...
+SHUFFLT	lbsr	MOVELT		Try to move left...
 	bcs	SHUFFL1		Failed?  Then try again...
 	bra	SHUFFLP
 
@@ -2684,9 +2684,30 @@ CHKINPT	cmpa	#$6b
 	cmpa	#$75
 	beq	CKUNSCR
 
+	cmpa	#$72
+	beq	CKRESCR
+
 	bra	CKINPEX
 
-CKUNSCR	lbsr	UNSCRAM
+CKUNSCR	ldx	#BLOKMAP
+	ldy	#SAVEMAP
+
+	lda	#$0f
+
+CKUNSLP	ldb	a,x
+	stb	a,y
+	deca
+	bne	CKUNSLP
+	ldb	,x
+	stb	,y
+
+	lda	CURBLOK
+	sta	SAVBLOK
+
+	lbsr	UNSCRAM
+	bra	CKINPLP
+
+CKRESCR	lbsr	RESCRAM
 	bra	CKINPLP
 
 CKINPUP	bsr	MOVEUP
@@ -2808,7 +2829,7 @@ UNSCRAM	lda	#$0f		Copy current block 15 to CURBLOK
 	lbsr	CPBLOCK
 
 	lda	#$0f		Blank the scratch block
-	bsr	BLBLOCK
+	lbsr	BLBLOCK
 
 	ldx	#BLOKMAP	Swap block 15 and CURBLOK in the block map
 	lda	$0f,x
@@ -2833,7 +2854,7 @@ UNSCRLP	cmpa	a,x		If current block already correct, skip
 	lbsr	CPBLOCK
 
 	lda	,s		Blank the copied block (needed to keep CSS data correct)
-	bsr	BLBLOCK
+	lbsr	BLBLOCK
 
 	ldb	,s		Copy contents from block occupying original position
 	ldx	#BLOKMAP
@@ -2843,7 +2864,7 @@ UNSCRLP	cmpa	a,x		If current block already correct, skip
 	ldb	,s		Blank the copied block (needed to keep CSS data correct)
 	ldx	#BLOKMAP
 	lda	b,x
-	bsr	BLBLOCK
+	lbsr	BLBLOCK
 
 	lda	,s		Copy contents from block 15 out to original position
 	ldx	#BLOKMAP
@@ -2852,7 +2873,7 @@ UNSCRLP	cmpa	a,x		If current block already correct, skip
 	lbsr	CPBLOCK
 
 	lda	#$0f		Blank the scratch block
-	bsr	BLBLOCK
+	lbsr	BLBLOCK
 
 	ldx	#BLOKMAP	Swap values in block map
 	lda	,s
@@ -2876,6 +2897,90 @@ UNSCRCK	tst	1,s		If "dirty" flag set, clear flag and restart the loop
 	bra	UNSCRLP
 
 UNSCREX	leas	2,s		Clean-up stack and exit
+	rts
+
+*
+* Rescramble the screen (only use w/ unscrambled screen and saved block map)
+*
+*	A,B clobbered
+*	X,Y clobbered
+*
+RESCRAM	lda	SAVBLOK		Swap current blank box w/ saved blank box
+	cmpa	#$0f		If already matches, then skip
+	beq	RESCRA1
+
+	ldb	#$0f		Copy data from new blank box to current blank box
+	lbsr	CPBLOCK
+
+	lda	SAVBLOK		Blank the new box
+	bsr	BLBLOCK
+
+	ldx	#BLOKMAP	Swap the map data for the blank boxes
+	lda	SAVBLOK
+	sta	$0f,x
+	ldb	#$0f
+	stb	a,x
+
+RESCRA1	sta	CURBLOK		Save new blank box as current blank box
+
+	lda	#$0f		Walk the block list, starting with block 15
+	pshs	a		Save as count
+
+RESCRLP	cmpa	CURBLOK		If block matches CURBLOK, skip it
+	beq	RESLPEN
+
+	ldb	CURBLOK		Copy block data to scratch area
+	lbsr	CPBLOCK
+
+	lda	,s		Blank the current block data
+	bsr	BLBLOCK
+
+	ldx	#SAVEMAP	Retrieve saved block number for this location
+	lda	,s
+	ldb	a,x
+
+	ldx	#BLOKMAP
+	lda	#$0f
+RESCFLP	cmpb	a,x		Search for saved block number in current map
+	beq	RESCFLX
+	deca
+	bra	RESCFLP		Something should be a match, so no bounds check
+
+RESCFLX	pshs	a		Save the source block location number
+	ldb	1,s		Reload destination block location number
+	lbsr	CPBLOCK		Copy new block data to current block
+
+	lda	,s		Blank the new block data
+	bsr	BLBLOCK
+
+	lda	CURBLOK		Copy block data from scratch area
+	ldb	,s
+	lbsr	CPBLOCK	
+
+	lda	CURBLOK		Blank the scratch area block data
+	bsr	BLBLOCK
+
+	ldx	#BLOKMAP	Swap the blocks in the map
+	lda	,s		Retrieve old source block map location
+	ldb	a,x		Retrieve old source block number from map
+	pshs	b		Save old source block number
+	lda	2,s		Retrieve old dest block map location
+	ldb	a,x		Retrieve old dest block number from map
+	lda	1,s		Retrieve old source block map location
+	stb	a,x		Store old dest block number at old source location
+	lda	2,s		Retrieve old dest block map location
+	puls	b		Retrive old source block number
+	stb	a,x		Store old source block number at old dest location
+
+	leas	1,s		Clean-up stack
+
+RESLPEN	lda	,s		Repeat for all blocks
+	beq	RESCREX
+	deca
+	sta	,s
+	bra	RESCRLP
+
+RESCREX	leas	1,s
 	rts
 
 *
@@ -3195,9 +3300,11 @@ LFSRGET	lda	LFSRDAT		Get MSB of LFSR data
 	sta	LFSRDAT		Store the result
 	rts
 
-CURBLOK	rmb	1
-LFSRDAT	rmb	1
+CURBLOK	rmb	1		Current "empty" block
+LFSRDAT	rmb	1		Current seed for LFSR
 
-BLOKMAP	rmb	16
+BLOKMAP	rmb	16		Map of block positions
+SAVEMAP	rmb	16		Save area for block map (during "hint")
+SAVBLOK	rmb	1		Save area for current "empty" (during "hint")
 
 	END	START
