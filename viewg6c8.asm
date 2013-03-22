@@ -2653,7 +2653,7 @@ SHUFFLT	bsr	MOVELT		Try to move left...
 	bcs	SHUFFL1		Failed?  Then try again...
 	bra	SHUFFLP
 
-SHUFFRT	bsr	MOVERT		Try to move right...
+SHUFFRT	lbsr	MOVERT		Try to move right...
 	bcs	SHUFFL1		Failed?  Then try again...
 	bra	SHUFFLP
 
@@ -2681,7 +2681,13 @@ CHKINPT	cmpa	#$6b
 	cmpa	#$6c
 	beq	CKINPRT
 
+	cmpa	#$75
+	beq	CKUNSCR
+
 	bra	CKINPEX
+
+CKUNSCR	lbsr	UNSCRAM
+	bra	CKINPLP
 
 CKINPUP	bsr	MOVEUP
 	bra	CKINPGW
@@ -2709,7 +2715,8 @@ CKINGW1	cmpa	a,x		Compare offset to value at offset
 
 CKINPLP	jmp	VSTART
 
-CKINPEX	jmp	[$fffe]         Re-enter monitor
+CKINPEX	bsr	UNSCRAM		Unscramble the screen
+	jmp	[$fffe]         Re-enter monitor
 
 GAMEWON	lda	$ff69		Check for serial port activity
 	bita	#$08
@@ -2784,11 +2791,92 @@ MOVEFIN	pshs	a		Save new block number for later
 	lbsr	CPBLOCK		Copy new block to old block
 
 	puls	a		Restore new block and blank it
-	bsr	BLBLOCK
+	lbsr	BLBLOCK
 
 	andcc	#$fe		Indicate move success
 
 MOVEXIT	rts
+
+*
+* Unscramble the screen
+*
+*	A,B clobbered
+*	X clobbered
+*
+UNSCRAM	lda	#$0f		Copy current block 15 to CURBLOK
+	ldb	CURBLOK
+	lbsr	CPBLOCK
+
+	lda	#$0f		Blank the scratch block
+	bsr	BLBLOCK
+
+	ldx	#BLOKMAP	Swap block 15 and CURBLOK in the block map
+	lda	$0f,x
+	ldb	CURBLOK
+	sta	b,x
+	lda	#$0f
+	sta	$0f,x
+	sta	CURBLOK
+
+	clrb			Initialize "dirty" flag
+	pshs	b
+	deca			Initialize count for remainging locks (14 to 0)
+	pshs	a
+
+UNSCRLP	cmpa	a,x		If current block already correct, skip
+	beq	UNSLEND
+	ldb	#$ff		Set "dirty" flag
+	stb	1,s
+
+	pshs	a		Copy current contents to block 15 (now 'empty')
+	ldb	#$0f
+	lbsr	CPBLOCK
+
+	lda	,s		Blank the copied block (needed to keep CSS data correct)
+	bsr	BLBLOCK
+
+	ldb	,s		Copy contents from block occupying original position
+	ldx	#BLOKMAP
+	lda	b,x
+	lbsr	CPBLOCK
+
+	ldb	,s		Blank the copied block (needed to keep CSS data correct)
+	ldx	#BLOKMAP
+	lda	b,x
+	bsr	BLBLOCK
+
+	lda	,s		Copy contents from block 15 out to original position
+	ldx	#BLOKMAP
+	ldb	a,x
+	lda	#$0f
+	lbsr	CPBLOCK
+
+	lda	#$0f		Blank the scratch block
+	bsr	BLBLOCK
+
+	ldx	#BLOKMAP	Swap values in block map
+	lda	,s
+	ldb	a,x
+	lda	b,x
+	stb	b,x
+	puls	b
+	sta	b,x
+
+UNSLEND	lda	,s		If end of count, check for "dirty" flag
+	beq	UNSCRCK
+	deca			Otherwise, decrement count and loop
+	sta	,s
+	bra	UNSCRLP
+
+UNSCRCK	tst	1,s		If "dirty" flag set, clear flag and restart the loop
+	beq	UNSCREX
+	clr	1,s
+	lda	#$0e
+	sta	,s
+	bra	UNSCRLP
+
+UNSCREX	leas	2,s		Clean-up stack and exit
+	rts
 
 *
 * Blank-out a block
