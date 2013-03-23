@@ -73,7 +73,7 @@ BMINILP	sta	a,x
 	sta	CURBLOK		Set bottom-rightmost block as current block
 	lbsr	BLBLOCK		Blank-out bottom-rightmost block
 
-	lbsr	SHUFFLE		Shuffle the blocks...
+GAMSTRT	lbsr	SHUFFLE		Shuffle the blocks...
 
 VINIT	clr	$ffc3		Setup G6C video mode at address $0e00
 	clr	$ffc5
@@ -2743,7 +2743,7 @@ GAMEWON	lda	$ff69		Check for serial port activity
 	bita	#$08
 	beq	GAMEWON
 	lda	$ff68
-	jmp	[$fffe]
+	jmp	GAMSTRT
 
 *
 * Move a block -- multiple entry points
