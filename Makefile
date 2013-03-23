@@ -39,6 +39,8 @@ OBJECTS=test.ppm testg6c8.asm testsg24.asm testflip44.asm
 
 EXTRA=gencolors colors.h
 
+LOADER_PARTS=init.bas select.bas load.bas dir.bas
+
 all: $(TARGETS)
 
 %.bin: %.asm
@@ -90,6 +92,9 @@ testsg24.asm: test.ppm ppmtosg24
 
 testflip44.asm: test.ppm ppmtoflip44
 	./ppmtoflip44 $< $@
+
+sluzzle.bas: $(LOADER_PARTS)
+	cat $(LOADER_PARTS) > $@
 
 vdgtricks.dsk: paltest1.bin paltest2.bin COPYING README \
 		testg6c8.bin testsg24.bin testflip44.bin

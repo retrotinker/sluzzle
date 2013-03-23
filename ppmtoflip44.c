@@ -738,7 +738,7 @@ int main(int argc, char *argv[])
 				sgvbuf[i][j+6], sgvbuf[i][j+7]);
 		}
 
-	fprintf(outfile, "\torg $3e00\n");
+	fprintf(outfile, "\torg $6000\n");
 
 	for (i = 0; i < PPM_VERT_PIXELS; i++) {
 		for (j = 0; j < LINES_PER_PIXEL; j++) {

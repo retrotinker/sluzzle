@@ -16,15 +16,17 @@
 	nam	viewg6c8
 	ttl	Viewer for 8-color CG6 mode
 
+LOAD	equ	$6100
+
 SCNBASE	equ	$0e00
-CSSBASE	equ	$2600
+CSSBASE	equ	$6000
 
 RTOTLEN	equ	$16
 RSKPLEN	equ	$06
 
 BLKHGHT	equ	$30		If changed, need to adjust block offset math
 
-	org $2700
+	org	LOAD
 START	lda	#$ff		Setup DP register
 	tfr	a,dp
 	setdp	$ff
