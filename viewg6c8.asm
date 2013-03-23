@@ -18,6 +18,8 @@
 
 LOAD	equ	$6100
 
+TIMVAL	equ	$0112		Extended BASIC's free-running time counter
+
 SCNBASE	equ	$0e00
 CSSBASE	equ	$6000
 
@@ -74,6 +76,11 @@ BMINILP	sta	a,x
 	lda	#$0f
 	sta	CURBLOK		Set bottom-rightmost block as current block
 	lbsr	BLBLOCK		Blank-out bottom-rightmost block
+
+	lda	TIMVAL		Initialize LFSR seed
+	bne	LFSRINI
+	lda	#$01		Can't start w/ zero
+LFSRINI	sta	LFSRDAT
 
 GAMSTRT	lbsr	SHUFFLE		Shuffle the blocks...
 
@@ -3288,15 +3295,18 @@ CPRWCS7	leay	1,y		Increment dest CSS data offset
 *	http://en.wikipedia.org/wiki/Linear_feedback_shift_register
 *
 LFSRGET	lda	LFSRDAT		Get MSB of LFSR data
-	eora	#$08		Capture x4 of LFSR polynomial
-	lsla
-	eora	LFSRDAT		Capture X5 of LFSR polynomial
-	lsla
+	anda	#$80		Capture x8 of LFSR polynomial
+	lsra
+	lsra
 	eora	LFSRDAT		Capture X6 of LFSR polynomial
-	lsla
-	lsla
-	eora	LFSRDAT		Capture X8 of LFSR polynomial
-	lsla			Move result to Carry bit of CC
+	lsra
+	eora	LFSRDAT		Capture X5 of LFSR polynomial
+	lsra
+	eora	LFSRDAT		Capture X4 of LFSR polynomial
+	lsra			Move result to Carry bit of CC
+	lsra
+	lsra
+	lsra
 	lda	LFSRDAT		Get all of LFSR data
 	rola			Shift result into 8-bit LFSR
 	sta	LFSRDAT		Store the result
