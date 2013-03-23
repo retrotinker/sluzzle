@@ -4,27 +4,22 @@ CFLAGS=-Wall
 
 RUN?=mon09
 
-TARGBASE=ppmtog6c8 ppmtosg24 ppmtoflip44 \
-	paltest1.ppm
+TARGBASE=ppmtog6c8 ppmtosg24 ppmtoflip44
 
-TARGDECB=testg6c8.bin testg6c8.wav \
-	testsg24.bin testsg24.wav \
-	testflip44.bin testflip44.wav \
-	viewg6c8.bin viewg6c8.wav \
-	viewsg24.bin viewsg24.wav \
-	viewflip44.bin viewflip44.wav \
-	paltest1.bin paltest1.wav \
-	paltest2.bin paltest2.wav \
-	vdgtricks.dsk
+TARGDECB=testg6c8.pic \
+	testsg24.pic \
+	testflip44.pic \
+	viewg6c8.bin \
+	viewsg24.bin \
+	viewflip44.bin \
+	sluzzle.dsk
 
 TARGMON09=testg6c8.s19 \
 	testsg24.s19 \
 	testflip44.s19 \
 	viewg6c8.s19 \
 	viewsg24.s19 \
-	viewflip44.s19 \
-	paltest1.s19 \
-	paltest2.s19
+	viewflip44.s19
 
 TARGETS=$(TARGBASE)
 ifeq ($(RUN),decb)
@@ -35,7 +30,7 @@ else
 $(error Invalid RUN definition!)
 endif
 
-OBJECTS=test.ppm testg6c8.asm testsg24.asm testflip44.asm
+OBJECTS=testg6c8.asm testsg24.asm testflip44.asm
 
 EXTRA=gencolors colors.h
 
@@ -46,13 +41,11 @@ all: $(TARGETS)
 %.bin: %.asm
 	mamou -mb -tb -l -y -o$@ $<
 
+%.pic: %.asm
+	mamou -mb -tb -l -y -o$@ $<
+
 %.s19: %.asm
 	mamou -mr -ts -l -y -o$@ $<
-
-%.wav: %.bin
-	cecb bulkerase $@
-	cecb copy -2 -b -g $< \
-		$(@),$$(echo $< | cut -c1-8 | tr [:lower:] [:upper:])
 
 .c.o:
 	$(CC) $(CFLAGS) -c -o $@ $<
@@ -76,9 +69,6 @@ ppmtosg24: ppmtosg24.o palette.h
 ppmtoflip44: ppmtoflip44.o palette.h
 	$(CC) $(CFLAGS) -o $@ $<
 
-paltest1.ppm: paltest1.dat
-	xxd -p -r $< $@
-
 test.ppm: test.jpg
 	convert -resize 125x200%! -resize 128x192 -quantize YIQ +dither \
 		-background blue -gravity center -extent 128x192 \
@@ -96,17 +86,11 @@ testflip44.asm: test.ppm ppmtoflip44
 sluzzle.bas: $(LOADER_PARTS)
 	cat $(LOADER_PARTS) > $@
 
-vdgtricks.dsk: paltest1.bin paltest2.bin COPYING README \
-		testg6c8.bin testsg24.bin testflip44.bin
+sluzzle.dsk: sluzzle.bas testg6c8.pic viewg6c8.bin COPYING README 
 	decb dskini $@
-	decb copy -2 -b paltest1.bin $@,PALTEST1.BIN
-	decb copy -2 -b paltest2.bin $@,PALTEST2.BIN
+	decb copy -0 -b -l -t sluzzle.bas $@,SLUZZLE.BAS
 	decb copy -2 -b viewg6c8.bin $@,VIEWG6C8.BIN
-	decb copy -2 -b viewsg24.bin $@,VIEWSG24.BIN
-	decb copy -2 -b viewflip44.bin $@,VIEWFLIP.BIN
-	decb copy -2 -b testg6c8.bin $@,TESTG6C8.BIN
-	decb copy -2 -b testsg24.bin $@,TESTSG24.BIN
-	decb copy -2 -b testflip44.bin $@,TESTFLIP.BIN
+	decb copy -2 -b testg6c8.pic $@,TESTG6C8.PIC
 	decb copy -3 -a -l COPYING $@,COPYING
 	decb copy -3 -a -l README $@,README
 

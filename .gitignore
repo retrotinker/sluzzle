@@ -19,13 +19,6 @@ ppmtog6c8
 ppmtosg24
 ppmtoflip44
 
-# paltest binaries
-paltest1.ppm
-paltest1.bin
-paltest1.s19
-paltest2.bin
-paltest2.s19
-
 # image viewer binaries
 viewg6c8.bin
 viewg6c8.s19
@@ -37,24 +30,17 @@ viewflip44.s19
 # test images and binaries
 test.ppm
 testg6c8.asm
-testg6c8.bin
+testg6c8.pic
 testg6c8.s19
 testsg24.asm
-testsg24.bin
+testsg24.pic
 testsg24.s19
 testflip44.asm
-testflip44.bin
+testflip44.pic
 testflip44.s19
-
-# cassette image WAV files
-paltest1.wav
-paltest2.wav
-testg6c8.wav
-testsg24.wav
-testflip44.wav
 
 # BASIC loader
 sluzzle.bas
 
 # diskette image
-vdgtricks.dsk
+sluzzle.dsk
