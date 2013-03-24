@@ -87,6 +87,8 @@ BMINILP	sta	a,x
 	lda	#$01		Can't start w/ zero
 LFSRINI	sta	LFSRDAT
 
+	clr	GAMSTAT		Clear the game state field
+
 GAMSTRT	lbsr	SHUFFLE		Shuffle the blocks...
 
 VINIT	clr	$ffc3		Setup G6C video mode at address $0e00
@@ -2627,10 +2629,19 @@ CHKUART	lda	$ff69		Check for serial port activity
 	jmp	CHKINPT
 CHKKYBD	clr	PIA0D1		Check for any key input
 	lda	PIA0D0
-	dec	PIA0D1		Reset keyboard col selects
 	anda	#$7f		Check for any active columns
 	cmpa	#$7f
-	beq	VLOOP		If no active columns, continue
+	bne	CHKKBD0		If active columns, look for legal keys
+	dec	PIA0D1		Reset keyboard col selects
+	bra	VLOOP		No active columns, so continue
+
+CHKKBD0	tst	GAMSTAT		Check for non-zero game status
+	beq	CHKKBD1
+
+	clr	GAMSTAT
+
+	lda	#$72
+	bra	CHKKBDX
 
 CHKKBD1	lda	#$7f		Check for 'w'
 	sta	PIA0D1
@@ -2668,17 +2679,30 @@ CHKKBD4	lda	#$ef		Check for 'd'
 	lda	#$6c
 	bra	CHKKBDX
 
-CHKKBD5	lda	#$fb		Check for 'BREAK'
+CHKKBD5	lda	#$fe		Check for 'h'
+	sta	PIA0D1
+	lda	PIA0D0
+	bita	#$02
+	bne	CHKKBD6
+
+	dec	GAMSTAT
+
+	lda	#$75
+	bra	CHKKBDX
+
+CHKKBD6	lda	#$fb		Check for 'BREAK'
 	sta	PIA0D1
 	lda	PIA0D0
 	bita	#$40
-	bne	CHKKBD6
+	bne	CHKKBD7
 
 	lda	#$00
 	bra	CHKKBDX
 
 * Ignore this for now, or maybe signal illegal move...
-CHKKBD6	jmp	VSTART
+CHKKBD7	lda	#$ff		Reset keyboard col selects
+	sta	PIA0D1
+	jmp	VSTART
 
 CHKKBDX	ldb	PIA0D0		Wait for key release
 	andb	#$7f
@@ -3394,5 +3418,7 @@ LFSRDAT	rmb	1		Current seed for LFSR
 BLOKMAP	rmb	16		Map of block positions
 SAVEMAP	rmb	16		Save area for block map (during "hint")
 SAVBLOK	rmb	1		Save area for current "empty" (during "hint")
+
+GAMSTAT	rmb	1		Current game state
 
 	END	START
