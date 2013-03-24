@@ -2635,68 +2635,68 @@ CHKKYBD	clr	PIA0D1		Check for any key input
 	dec	PIA0D1		Reset keyboard col selects
 	bra	VLOOP		No active columns, so continue
 
-CHKKBD0	tst	GAMSTAT		Check for non-zero game status
-	beq	CHKKBD1
+CHKKBD0	lda	#$fb		Check for 'BREAK' first...
+	sta	PIA0D1
+	lda	PIA0D0
+	bita	#$40
+	bne	CHKKBD1
+
+	lda	#$00
+	bra	CHKKBDX
+
+CHKKBD1	tst	GAMSTAT		Check for non-zero game status next...
+	beq	CHKKBD2		...to pair unscramble w/ rescramble...
 
 	clr	GAMSTAT
 
 	lda	#$72
 	bra	CHKKBDX
 
-CHKKBD1	lda	#$7f		Check for 'w'
+CHKKBD2	lda	#$7f		Check for 'w'
 	sta	PIA0D1
 	lda	PIA0D0
 	bita	#$04
-	bne	CHKKBD2
+	bne	CHKKBD3
 
 	lda	#$6b
 	bra	CHKKBDX
 
-CHKKBD2	lda	#$fd		Check for 'a'
+CHKKBD3	lda	#$fd		Check for 'a'
 	sta	PIA0D1
 	lda	PIA0D0
 	bita	#$01
-	bne	CHKKBD3
+	bne	CHKKBD4
 
 	lda	#$68
 	bra	CHKKBDX
 
-CHKKBD3	lda	#$f7		Check for 's'
+CHKKBD4	lda	#$f7		Check for 's'
 	sta	PIA0D1
 	lda	PIA0D0
 	bita	#$04
-	bne	CHKKBD4
+	bne	CHKKBD5
 
 	lda	#$6a
 	bra	CHKKBDX
 
-CHKKBD4	lda	#$ef		Check for 'd'
+CHKKBD5	lda	#$ef		Check for 'd'
 	sta	PIA0D1
 	lda	PIA0D0
 	bita	#$01
-	bne	CHKKBD5
+	bne	CHKKBD6
 
 	lda	#$6c
 	bra	CHKKBDX
 
-CHKKBD5	lda	#$fe		Check for 'h'
+CHKKBD6	lda	#$fe		Check for 'h'
 	sta	PIA0D1
 	lda	PIA0D0
 	bita	#$02
-	bne	CHKKBD6
-
-	dec	GAMSTAT
-
-	lda	#$75
-	bra	CHKKBDX
-
-CHKKBD6	lda	#$fb		Check for 'BREAK'
-	sta	PIA0D1
-	lda	PIA0D0
-	bita	#$40
 	bne	CHKKBD7
 
-	lda	#$00
+	dec	GAMSTAT		Indicate screen is unscrambled...
+
+	lda	#$75
 	bra	CHKKBDX
 
 * Ignore this for now, or maybe signal illegal move...
