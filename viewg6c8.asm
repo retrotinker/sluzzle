@@ -91,6 +91,24 @@ LFSRINI	sta	LFSRDAT
 
 GAMSTRT	lbsr	SHUFFLE		Shuffle the blocks...
 
+	ldx	#BLOKMAP	Save the block state
+	ldy	#SAVEMAP
+
+	lda	#$0f
+
+GAMSTR1	ldb	a,x
+	stb	a,y
+	deca
+	bne	GAMSTR1
+	ldb	,x
+	stb	,y
+
+	lda	CURBLOK
+	sta	SAVBLOK
+
+	lbsr	UNSCRAM		Start with unscrambled image...
+	dec	GAMSTAT		And wait for initial key press...
+
 VINIT	clr	$ffc3		Setup G6C video mode at address $0e00
 	clr	$ffc5
 	clr	$ffc7
@@ -2621,12 +2639,21 @@ HROW1ST	sta	$ff22
 	sta	$ff22
 	sta	$ff22
 	sta	$ff22
+
 * Check for user break (development only)
 CHKUART	lda	$ff69		Check for serial port activity
 	bita	#$08
 	beq	CHKKYBD
 	lda	$ff68
-	jmp	CHKINPT
+
+	tst	GAMSTAT		If in hint state, clear it
+	beq	CHKURT1
+
+	clr	GAMSTAT
+	lda	#$72
+
+CHKURT1	jmp	CHKINPT
+
 CHKKYBD	clr	PIA0D1		Check for any key input
 	lda	PIA0D0
 	anda	#$7f		Check for any active columns
@@ -2762,10 +2789,10 @@ CKUNSLP	ldb	a,x
 CKRESCR	lbsr	RESCRAM
 	bra	CKINPLP
 
-CKINPUP	lbsr	MOVEUP
+CKINPUP	bsr	MOVEUP
 	bra	CKINPGW
 
-CKINPDN	lbsr	MOVEDN
+CKINPDN	bsr	MOVEDN
 	bra	CKINPGW
 
 CKINPLT	lbsr	MOVELT
@@ -2791,18 +2818,7 @@ CKINPLP	jmp	VSTART
 CKINPEX	lbsr	UNSCRAM		Unscramble the screen
 	jmp	[$fffe]         Re-enter monitor
 
-GAMEWON	lda	$ff69		Check for serial port activity
-	bita	#$08
-	beq	GAMEWN1
-	lda	$ff68
-	bra	GAMEWN2
-GAMEWN1	clr	PIA0D1		Check for any key input
-	lda	PIA0D0
-	dec	PIA0D1		Reset keyboard col selects
-	anda	#$7f		Check for any active columns
-	cmpa	#$7f
-	beq	GAMEWON		If no active columns, continue
-GAMEWN2	jmp	GAMSTRT
+GAMEWON	jmp	GAMSTRT		For now, restart the game...
 
 *
 * Shuffle the blocks!
