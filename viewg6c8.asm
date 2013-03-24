@@ -20,6 +20,11 @@ LOAD	equ	$6100
 
 TIMVAL	equ	$0112		Extended BASIC's free-running time counter
 
+PIA0D0	equ	$ff00		Coco hardware definitions
+PIA0C0	equ	$ff01
+PIA0D1	equ	$ff02
+PIA0C1	equ	$ff03
+
 SCNBASE	equ	$0e00
 CSSBASE	equ	$6000
 
@@ -92,21 +97,21 @@ VINIT	clr	$ffc3		Setup G6C video mode at address $0e00
 	lda	#$e8
 	sta	$ff22
 
-VSTART	ldb     $ff01		Disable hsync interrupt generation
-	andb	#$fa
-	stb     $ff01
-	tst	$ff00
-	lda     $ff03		Enable vsync interrupt generation
-	ora     #$05
-	sta     $ff03
-	tst	$ff02
+VSTART	ldb     PIA0C0		Disable hsync interrupt generation
+	andb	#$fc
+	stb     PIA0C0
+	tst	PIA0D0
+	lda     PIA0C1		Enable vsync interrupt generation
+	ora     #$01
+	sta     PIA0C1
+	tst	PIA0D1
 	sync			Wait for vsync interrupt
-	anda	#$fa		Disable vsync interrupt generation
-	sta     $ff03
-	tst	$ff02
-	orb     #$05		Enable hsync interrupt generation
-	stb     $ff01
-	tst	$ff00
+	anda	#$fc		Disable vsync interrupt generation
+	sta     PIA0C1
+	tst	PIA0D1
+	orb     #$01		Enable hsync interrupt generation
+	stb     PIA0C0
+	tst	PIA0D0
 
 *
 * After the program starts, vsync interrupts aren't used...
@@ -2617,9 +2622,73 @@ HROW1ST	sta	$ff22
 * Check for user break (development only)
 CHKUART	lda	$ff69		Check for serial port activity
 	bita	#$08
-	beq	VLOOP
+	beq	CHKKYBD
 	lda	$ff68
 	jmp	CHKINPT
+CHKKYBD	clr	PIA0D1		Check for any key input
+	lda	PIA0D0
+	dec	PIA0D1		Reset keyboard col selects
+	anda	#$7f		Check for any active columns
+	cmpa	#$7f
+	beq	VLOOP		If no active columns, continue
+
+CHKKBD1	lda	#$7f		Check for 'w'
+	sta	PIA0D1
+	lda	PIA0D0
+	bita	#$04
+	bne	CHKKBD2
+
+	lda	#$6b
+	bra	CHKKBDX
+
+CHKKBD2	lda	#$fd		Check for 'a'
+	sta	PIA0D1
+	lda	PIA0D0
+	bita	#$01
+	bne	CHKKBD3
+
+	lda	#$68
+	bra	CHKKBDX
+
+CHKKBD3	lda	#$f7		Check for 's'
+	sta	PIA0D1
+	lda	PIA0D0
+	bita	#$04
+	bne	CHKKBD4
+
+	lda	#$6a
+	bra	CHKKBDX
+
+CHKKBD4	lda	#$ef		Check for 'd'
+	sta	PIA0D1
+	lda	PIA0D0
+	bita	#$01
+	bne	CHKKBD5
+
+	lda	#$6c
+	bra	CHKKBDX
+
+CHKKBD5	lda	#$fb		Check for 'BREAK'
+	sta	PIA0D1
+	lda	PIA0D0
+	bita	#$40
+	bne	CHKKBD6
+
+	lda	#$00
+	bra	CHKKBDX
+
+* Ignore this for now, or maybe signal illegal move...
+CHKKBD6	jmp	VSTART
+
+CHKKBDX	ldb	PIA0D0		Wait for key release
+	andb	#$7f
+	cmpb	#$7f
+	bne	CHKKBDX
+
+	ldb	#$ff		Reset keyboard col selects
+	stb	PIA0D1
+	jmp	CHKINPT
+
 VLOOP	jmp	VSYNC
 
 *
@@ -2745,14 +2814,21 @@ CKINGW1	cmpa	a,x		Compare offset to value at offset
 
 CKINPLP	jmp	VSTART
 
-CKINPEX	bsr	UNSCRAM		Unscramble the screen
+CKINPEX	lbsr	UNSCRAM		Unscramble the screen
 	jmp	[$fffe]         Re-enter monitor
 
 GAMEWON	lda	$ff69		Check for serial port activity
 	bita	#$08
-	beq	GAMEWON
+	beq	GAMEWN1
 	lda	$ff68
-	jmp	GAMSTRT
+	bra	GAMEWN2
+GAMEWN1	clr	PIA0D1		Check for any key input
+	lda	PIA0D0
+	dec	PIA0D1		Reset keyboard col selects
+	anda	#$7f		Check for any active columns
+	cmpa	#$7f
+	beq	GAMEWON		If no active columns, continue
+GAMEWN2	jmp	GAMSTRT
 
 *
 * Move a block -- multiple entry points
