@@ -2860,16 +2860,7 @@ SHUFFLP	dec	1,s
 *	A,B clobbered
 *	X clobbered
 *
-MOVEUP	lda	#$0c		Verify not on top row
-	anda	CURBLOK
-	beq	MOVFAIL
-
-	lda	CURBLOK		Subtract 4 from block number
-	suba	#$04
-
-	bra	MOVEFIN		Move the block
-
-MOVEDN	lda	#$0c		Verify not on bottom row
+MOVEUP	lda	#$0c		Verify not on bottom row
 	anda	CURBLOK
 	cmpa	#$0c
 	beq	MOVFAIL
@@ -2879,22 +2870,31 @@ MOVEDN	lda	#$0c		Verify not on bottom row
 
 	bra	MOVEFIN		Move the block
 
-MOVELT	lda	#$03		Verify not on left column
+MOVEDN	lda	#$0c		Verify not on top row
 	anda	CURBLOK
 	beq	MOVFAIL
 
-	lda	CURBLOK		Subtract 1 from block number
-	deca
+	lda	CURBLOK		Subtract 4 from block number
+	suba	#$04
 
 	bra	MOVEFIN		Move the block
 
-MOVERT	lda	#$03		Verify not on right column
+MOVELT	lda	#$03		Verify not on right column
 	anda	CURBLOK
 	cmpa	#$03
 	beq	MOVFAIL
 
 	lda	CURBLOK		Add 1 to block number
 	inca
+
+	bra	MOVEFIN		Move the block
+
+MOVERT	lda	#$03		Verify not on left column
+	anda	CURBLOK
+	beq	MOVFAIL
+
+	lda	CURBLOK		Subtract 1 from block number
+	deca
 
 	bra	MOVEFIN		Move the block
 
