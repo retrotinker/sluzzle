@@ -2692,56 +2692,6 @@ CHKKBDX	ldb	PIA0D0		Wait for key release
 VLOOP	jmp	VSYNC
 
 *
-* Shuffle the blocks!
-*
-*	A,B get clobbered
-*	X gets clobbered
-*
-SHUFFLE	lda	#$30		Setup counter for shuffling moves
-	pshs	a
-	ldb	#$06		Dummy-up forbidden direction for first move
-	pshs	b
-
-SHUFFL1	lbsr	LFSRGET		Pick a "random" number
-	anda	#$06		Mask to four directional values (shifted left)
-
-	cmpa	,s		Compare to forbidden direction
-	beq	SHUFFL1		If matches, try again
-	tfr	a,b		Compute next forbidden direction...
-	eorb	#$02		...which is really just the opposite direction
-	stb	,s		Store the new forbidden direction
-
-	ldx	#SHUFFJT	Setup jump table
-	jmp	a,x		Jump to offset for directional choice
-
-SHUFFJT	bra	SHUFFUP		Jump table, (2 bytes per entry)
-	bra	SHUFFDN
-	bra	SHUFFLT
-	bra	SHUFFRT
-
-SHUFFUP	lbsr	MOVEUP		Try to move up...
-	bcs	SHUFFL1		Failed?  Then try again...
-	bra	SHUFFLP
-
-SHUFFDN	lbsr	MOVEDN		Try to move down...
-	bcs	SHUFFL1		Failed?  Then try again...
-	bra	SHUFFLP
-
-SHUFFLT	lbsr	MOVELT		Try to move left...
-	bcs	SHUFFL1		Failed?  Then try again...
-	bra	SHUFFLP
-
-SHUFFRT	lbsr	MOVERT		Try to move right...
-	bcs	SHUFFL1		Failed?  Then try again...
-	bra	SHUFFLP
-
-SHUFFLP	dec	1,s
-	bne	SHUFFL1
-
-	leas	2,s
-	rts
-
-*
 * Check control input
 *
 *	A input value, clobbered
@@ -2788,16 +2738,16 @@ CKUNSLP	ldb	a,x
 CKRESCR	lbsr	RESCRAM
 	bra	CKINPLP
 
-CKINPUP	bsr	MOVEUP
+CKINPUP	lbsr	MOVEUP
 	bra	CKINPGW
 
-CKINPDN	bsr	MOVEDN
+CKINPDN	lbsr	MOVEDN
 	bra	CKINPGW
 
-CKINPLT	bsr	MOVELT
+CKINPLT	lbsr	MOVELT
 	bra	CKINPGW
 
-CKINPRT	bsr	MOVERT
+CKINPRT	lbsr	MOVERT
 ;	bra	CKINPGW
 
 CKINPGW	ldx	#BLOKMAP	Point at block map
@@ -2829,6 +2779,56 @@ GAMEWN1	clr	PIA0D1		Check for any key input
 	cmpa	#$7f
 	beq	GAMEWON		If no active columns, continue
 GAMEWN2	jmp	GAMSTRT
+
+*
+* Shuffle the blocks!
+*
+*	A,B get clobbered
+*	X gets clobbered
+*
+SHUFFLE	lda	#$30		Setup counter for shuffling moves
+	pshs	a
+	ldb	#$06		Dummy-up forbidden direction for first move
+	pshs	b
+
+SHUFFL1	lbsr	LFSRGET		Pick a "random" number
+	anda	#$06		Mask to four directional values (shifted left)
+
+	cmpa	,s		Compare to forbidden direction
+	beq	SHUFFL1		If matches, try again
+	tfr	a,b		Compute next forbidden direction...
+	eorb	#$02		...which is really just the opposite direction
+	stb	,s		Store the new forbidden direction
+
+	ldx	#SHUFFJT	Setup jump table
+	jmp	a,x		Jump to offset for directional choice
+
+SHUFFJT	bra	SHUFFUP		Jump table, (2 bytes per entry)
+	bra	SHUFFDN
+	bra	SHUFFLT
+	bra	SHUFFRT
+
+SHUFFUP	bsr	MOVEUP		Try to move up...
+	bcs	SHUFFL1		Failed?  Then try again...
+	bra	SHUFFLP
+
+SHUFFDN	bsr	MOVEDN		Try to move down...
+	bcs	SHUFFL1		Failed?  Then try again...
+	bra	SHUFFLP
+
+SHUFFLT	bsr	MOVELT		Try to move left...
+	bcs	SHUFFL1		Failed?  Then try again...
+	bra	SHUFFLP
+
+SHUFFRT	bsr	MOVERT		Try to move right...
+	bcs	SHUFFL1		Failed?  Then try again...
+	bra	SHUFFLP
+
+SHUFFLP	dec	1,s
+	bne	SHUFFL1
+
+	leas	2,s
+	rts
 
 *
 * Move a block -- multiple entry points
