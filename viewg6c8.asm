@@ -26,6 +26,13 @@ PIA0C0	equ	$ff01
 PIA0D1	equ	$ff02
 PIA0C1	equ	$ff03
 
+PIA1D0	equ	$ff20
+PIA1C0	equ	$ff21
+PIA1D1	equ	$ff22
+PIA1C1	equ	$ff23
+
+SQWAVE	equ	$02
+
 SCNBASE	equ	$0e00
 CSSBASE	equ	$6000
 
@@ -41,6 +48,15 @@ START	pshs	dp,y		Push partial entry state onto stack
 	tfr	a,dp
 	setdp	$ff
 	orcc	#$50		Disable interrupts
+
+	lda	PIA1C1		Enable square wave audio output
+	anda	#$fb
+	sta	PIA1C1
+	ldb	#SQWAVE
+	orb	PIA1D1
+	stb	PIA1D1
+	ora	#$04
+	sta	PIA1C1
 
 MODIFY	ldx	#CSSBASE	Load pointer to modification data table
 	ldy	#HROW0ST	Load pointer to instructions
@@ -2792,17 +2808,33 @@ CKUNSLP	ldb	a,x
 CKRESCR	lbsr	RESCRAM
 	bra	CKINPLP
 
-CKINPUP	bsr	MOVEUP
-	bra	CKINPGW
+CKINPUP	lbsr	MOVEUP
+	bcs	CKINPLP
+	bra	CKINPSN
 
 CKINPDN	lbsr	MOVEDN
-	bra	CKINPGW
+	bcs	CKINPLP
+	bra	CKINPSN
 
 CKINPLT	lbsr	MOVELT
-	bra	CKINPGW
+	bcs	CKINPLP
+	bra	CKINPSN
 
 CKINPRT	lbsr	MOVERT
-;	bra	CKINPGW
+	bcs	CKINPLP
+;	bra	CKINPSN
+
+CKINPSN	ldb	#$20
+
+CKINPS1	tst	PIA0D0		Play tone for successful move
+	sync
+
+	lda	PIA1D1		Toggle square wave output...
+	eora	#SQWAVE
+	sta	PIA1D1
+
+	decb
+	bne	CKINPS1
 
 CKINPGW	ldx	#BLOKMAP	Point at block map
 	lda	#$0f		Initialize offset
