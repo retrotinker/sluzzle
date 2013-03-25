@@ -18,7 +18,8 @@
 
 LOAD	equ	$6100
 
-TIMVAL	equ	$0112		Extended BASIC's free-running time counter
+TIMVAL	equ	$0112		Color BASIC's free-running time counter
+GIVABF	equ	$b4f4		Color BASIC's routine for returning a value
 
 PIA0D0	equ	$ff00		Coco hardware definitions
 PIA0C0	equ	$ff01
@@ -34,7 +35,9 @@ RSKPLEN	equ	$06
 BLKHGHT	equ	$30		If changed, need to adjust block offset math
 
 	org	LOAD
-START	lda	#$ff		Setup DP register
+START	pshs	dp,y		Push partial entry state onto stack
+
+	lda	#$ff		Setup DP register
 	tfr	a,dp
 	setdp	$ff
 	orcc	#$50		Disable interrupts
@@ -2792,7 +2795,7 @@ CKRESCR	lbsr	RESCRAM
 CKINPUP	bsr	MOVEUP
 	bra	CKINPGW
 
-CKINPDN	bsr	MOVEDN
+CKINPDN	lbsr	MOVEDN
 	bra	CKINPGW
 
 CKINPLT	lbsr	MOVELT
@@ -2816,7 +2819,14 @@ CKINGW1	cmpa	a,x		Compare offset to value at offset
 CKINPLP	jmp	VSTART
 
 CKINPEX	lbsr	UNSCRAM		Unscramble the screen
-	jmp	[$fffe]         Re-enter monitor
+
+	ldb     PIA0C0		Disable hsync interrupt generation
+	andb	#$fc
+	stb     PIA0C0
+	tst	PIA0D0
+	puls	dp,y		Pull partial entry state from stack
+	ldd	#$0000		Return a value to Color BASIC
+	jmp	GIVABF
 
 GAMEWON	jmp	GAMSTRT		For now, restart the game...
 
