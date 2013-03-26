@@ -106,9 +106,12 @@ BMINILP	sta	a,x
 	lda	#$01		Can't start w/ zero
 LFSRINI	sta	LFSRDAT
 
-	clr	GAMSTAT		Clear the game state field
+GAMSTRT	clr	GAMSTAT		Clear the game state field
 
-GAMSTRT	lbsr	SHUFFLE		Shuffle the blocks...
+	clr	MOVECNT		Clear the count of legal moves
+	clr	MOVECNT+1
+
+	lbsr	SHUFFLE		Shuffle the blocks...
 
 	ldx	#BLOKMAP	Save the block state
 	ldy	#SAVEMAP
@@ -2767,6 +2770,8 @@ VLOOP	jmp	VSYNC
 *	A input value, clobbered
 *	B clobbered
 *
+* NOTE: called from highest level (not from a function)
+*
 * NOTE: After control processing, jumps to VSTART instead of VSYNC.
 *	Otherwise, would have to track Hsync properly...
 *
@@ -2836,6 +2841,10 @@ CKINPS1	tst	PIA0D0		Play tone for successful move
 	decb
 	bne	CKINPS1
 
+	ldd	MOVECNT		Increment the legal move counter
+	addd	#$01
+	std	MOVECNT
+
 CKINPGW	ldx	#BLOKMAP	Point at block map
 	lda	#$0f		Initialize offset
 
@@ -2852,15 +2861,34 @@ CKINPLP	jmp	VSTART
 
 CKINPEX	lbsr	UNSCRAM		Unscramble the screen
 
+	ldd	MOVECNT		Negate the number of legal moves
+	coma
+	comb
+	addd	#$0001
+
+	jmp	EXIT
+
+*
+* Entry point for when the game is won
+*
+* NOTE: called from highest level (not from a function)
+*
+GAMEWON	ldd	MOVECNT		Return the number of moves
+
+	jmp	EXIT
+
+*
+* Entry point to exit the game
+*
+* NOTE: called from highest level (not from a function)
+*
+EXIT	pshs	b		Save B for return value
 	ldb     PIA0C0		Disable hsync interrupt generation
 	andb	#$fc
 	stb     PIA0C0
 	tst	PIA0D0
-	puls	dp,y		Pull partial entry state from stack
-	ldd	#$0000		Return a value to Color BASIC
-	jmp	GIVABF
-
-GAMEWON	jmp	GAMSTRT		For now, restart the game...
+	puls	dp,b,y		Pull partial entry state from stack
+	jmp	GIVABF		Return a value to Color BASIC
 
 *
 * Shuffle the blocks!
@@ -3478,5 +3506,7 @@ SAVEMAP	rmb	16		Save area for block map (during "hint")
 SAVBLOK	rmb	1		Save area for current "empty" (during "hint")
 
 GAMSTAT	rmb	1		Current game state
+
+MOVECNT	rmb	2		Count of total legal moves
 
 	END	START
