@@ -34,7 +34,7 @@ OBJECTS=testg6c8.asm testsg24.asm testflip44.asm
 
 EXTRA=gencolors colors.h
 
-LOADER_PARTS=init.bas intro.bas select.bas dir.bas load.bas
+LOADER_PARTS=init.bas intro.bas select.bas dir.bas load.bas options.bas
 
 all: $(TARGETS)
 
