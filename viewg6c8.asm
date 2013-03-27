@@ -2887,6 +2887,9 @@ EXIT	pshs	b		Save B for return value
 	andb	#$fc
 	stb     PIA0C0
 	tst	PIA0D0
+	ldb     PIA0C1		Enable vsync interrupt generation
+	orb	#$01
+	stb     PIA0C1
 	puls	dp,b,y		Pull partial entry state from stack
 	jmp	GIVABF		Return a value to Color BASIC
 
