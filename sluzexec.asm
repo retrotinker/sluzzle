@@ -2704,37 +2704,37 @@ CHKKBD1	tst	GAMSTAT		Check for non-zero game status next...
 	lda	#$72
 	bra	CHKKBDX
 
-CHKKBD2	lda	#$7f		Check for 'w'
+CHKKBD2	lda	#$fd		Check for 'i'
 	sta	PIA0D1
 	lda	PIA0D0
-	bita	#$04
+	bita	#$02
 	bne	CHKKBD3
 
 	lda	#$6b
 	bra	CHKKBDX
 
-CHKKBD3	lda	#$fd		Check for 'a'
+CHKKBD3	lda	#$fb		Check for 'j'
 	sta	PIA0D1
 	lda	PIA0D0
-	bita	#$01
+	bita	#$02
 	bne	CHKKBD4
 
 	lda	#$68
 	bra	CHKKBDX
 
-CHKKBD4	lda	#$f7		Check for 's'
+CHKKBD4	lda	#$f7		Check for 'k'
 	sta	PIA0D1
 	lda	PIA0D0
-	bita	#$04
+	bita	#$02
 	bne	CHKKBD5
 
 	lda	#$6a
 	bra	CHKKBDX
 
-CHKKBD5	lda	#$ef		Check for 'd'
+CHKKBD5	lda	#$ef		Check for 'l'
 	sta	PIA0D1
 	lda	PIA0D0
-	bita	#$01
+	bita	#$02
 	bne	CHKKBD6
 
 	lda	#$6c
