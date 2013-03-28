@@ -22,13 +22,13 @@ ppmtoflip44
 # test images and binaries
 test.ppm
 testg6c8.asm
-testg6c8.pic
+testg6c8.slz
 testg6c8.s19
 testsg24.asm
-testsg24.pic
+testsg24.slz
 testsg24.s19
 testflip44.asm
-testflip44.pic
+testflip44.slz
 testflip44.s19
 
 # sluzzle viewer/game binaries

@@ -6,9 +6,9 @@ RUN?=mon09
 
 TARGBASE=ppmtog6c8 ppmtosg24 ppmtoflip44
 
-TARGDECB=testg6c8.pic \
-	testsg24.pic \
-	testflip44.pic \
+TARGDECB=testg6c8.slz \
+	testsg24.slz \
+	testflip44.slz \
 	sluzexec.bin \
 	sluzzle.dsk
 
@@ -37,7 +37,7 @@ all: $(TARGETS)
 %.bin: %.asm
 	mamou -mb -tb -l -y -o$@ $<
 
-%.pic: %.asm
+%.slz: %.asm
 	mamou -mb -tb -l -y -o$@ $<
 
 %.s19: %.asm
@@ -82,11 +82,11 @@ testflip44.asm: test.ppm ppmtoflip44
 sluzzle.bas: $(LOADER_PARTS)
 	cat $(LOADER_PARTS) > $@
 
-sluzzle.dsk: sluzzle.bas testg6c8.pic sluzexec.bin COPYING README 
+sluzzle.dsk: sluzzle.bas testg6c8.slz sluzexec.bin COPYING README 
 	decb dskini $@
 	decb copy -0 -b -l -t sluzzle.bas $@,SLUZZLE.BAS
 	decb copy -2 -b sluzexec.bin $@,SLUZEXEC.BIN
-	decb copy -2 -b testflip44.pic $@,TESTFLIP.PIC
+	decb copy -2 -b testflip44.slz $@,TESTFLIP.SLZ
 	decb copy -3 -a -l COPYING $@,COPYING
 	decb copy -3 -a -l README $@,README
 
