@@ -13,8 +13,8 @@
 * ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF
 * OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 *
-	nam	viewg6c8
-	ttl	Viewer for 8-color CG6 mode
+	nam	sluzexec
+	ttl	Viewer/game binary for Sluzzle
 
 LOAD	equ	$6100
 
@@ -34,6 +34,7 @@ PIA1C1	equ	$ff23
 SQWAVE	equ	$02
 
 SCNBASE	equ	$0e00
+SG24OFF	equ	$1800
 CSSBASE	equ	$6000
 
 RTOTLEN	equ	$16
@@ -131,15 +132,14 @@ GAMSTR1	ldb	a,x
 	lbsr	UNSCRAM		Start with unscrambled image...
 	dec	GAMSTAT		And wait for initial key press...
 
-VINIT	clr	$ffc3		Setup G6C video mode at address $0e00
+
+VSTART	clr	$ffc3		Setup G6C video mode at address $0e00
 	clr	$ffc5
 	clr	$ffc7
 	clr	$ffc9
 	clr	$ffcb
-	lda	#$e8
-	sta	$ff22
 
-VSTART	ldb     PIA0C0		Disable hsync interrupt generation
+	ldb     PIA0C0		Disable hsync interrupt generation
 	andb	#$fc
 	stb     PIA0C0
 	tst	PIA0D0
@@ -154,6 +154,9 @@ VSTART	ldb     PIA0C0		Disable hsync interrupt generation
 	orb     #$01		Enable hsync interrupt generation
 	stb     PIA0C0
 	tst	PIA0D0
+
+VINIT	clr	$ffce
+	clr	$ffcb
 
 *
 * After the program starts, vsync interrupts aren't used...
@@ -2762,7 +2765,45 @@ CHKKBDX	ldb	PIA0D0		Wait for key release
 	stb	PIA0D1
 	jmp	CHKINPT
 
-VLOOP	jmp	VSYNC
+VLOOP	clr	$ffca		Point the VDG at the SG24 data
+	clr	$ffcf
+	lda	#$e0
+	sta	$ff22
+SGVSYNC	ldb	#$45		Count lines during vblank and vertical borders
+SHCOUNT	tst	$ff00
+	sync
+	decb
+	bne	SHCOUNT
+	ldb	#$c0
+	tst	$ff00
+	sync
+SGVACTV	nop
+	andcc	#$ff
+	lda	#$00		Need CSS preset for background color!
+	sta	$ff22
+	nop
+	nop
+	nop
+	nop
+	nop
+	nop
+	nop
+	nop
+	nop
+	nop
+	nop
+	nop
+	andcc	#$ff
+	lda	#$e0		Set for G6C mode to get chosen background!
+	sta	$ff22
+	nop
+	nop
+	nop
+	nop
+	decb
+	bne	SGVACTV
+
+	jmp	VINIT
 
 *
 * Check control input
@@ -3206,6 +3247,7 @@ BLBLOCK	pshs	a
 BLBLCK1	ldx	#SCNBASE
 	leax	d,x
 	leas	3,s
+	pshs	x
 
 BLRWDAT	lda	#BLKHGHT	Init row counter
 	ldb	#$aa		Load blank-out data
@@ -3220,6 +3262,23 @@ BLRWDT1	stb	,x		Fill rows w/ blank-out data
 	leax	$20,x
 	deca
 	bne	BLRWDT1
+
+	puls	x		Repeat for SG24 data
+	ldd	#SG24OFF
+	leax	d,x
+BLSGDAT	lda	#BLKHGHT	Init row counter
+	ldb	#$80		Load blank-out data
+BLSGDT1	stb	,x		Fill rows w/ blank-out data
+	stb	1,x
+	stb	2,x
+	stb	3,x
+	stb	4,x
+	stb	5,x
+	stb	6,x
+	stb	7,x
+	leax	$20,x
+	deca
+	bne	BLSGDT1
 
 BLRWINS	ldx	#HROW0ST	Determine code offset for block =
 	lda	,s			codebase +
@@ -3330,6 +3389,7 @@ CPBLCK1	ldx	#SCNBASE
 CPBLCK2	ldy	#SCNBASE
 	leay	d,y
 	leas	3,s
+	pshs	x,y
 
 CPRWDAT	lda	#BLKHGHT	Init row counter
 CPRWDT1	ldb	,x		Copy rows from source to dest
@@ -3352,6 +3412,32 @@ CPRWDT1	ldb	,x		Copy rows from source to dest
 	leay	$20,y
 	deca
 	bne	CPRWDT1
+
+	puls	x,y		Repeat for SG24 data
+	ldd	#SG24OFF
+	leax	d,x
+	leay	d,y
+CPSGDAT	lda	#BLKHGHT	Init row counter
+CPSGDT1	ldb	,x		Copy rows from source to dest
+	stb	,y
+	ldb	1,x
+	stb	1,y
+	ldb	2,x
+	stb	2,y
+	ldb	3,x
+	stb	3,y
+	ldb	4,x
+	stb	4,y
+	ldb	5,x
+	stb	5,y
+	ldb	6,x
+	stb	6,y
+	ldb	7,x
+	stb	7,y
+	leax	$20,x
+	leay	$20,y
+	deca
+	bne	CPSGDT1
 
 CPRWINS	ldx	#HROW0ST	Determine code offset for src block =
 	lda	1,s			codebase +

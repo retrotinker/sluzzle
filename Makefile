@@ -86,7 +86,7 @@ sluzzle.dsk: sluzzle.bas testg6c8.pic sluzexec.bin COPYING README
 	decb dskini $@
 	decb copy -0 -b -l -t sluzzle.bas $@,SLUZZLE.BAS
 	decb copy -2 -b sluzexec.bin $@,SLUZEXEC.BIN
-	decb copy -2 -b testg6c8.pic $@,TESTG6C8.PIC
+	decb copy -2 -b testflip44.pic $@,TESTFLIP.PIC
 	decb copy -3 -a -l COPYING $@,COPYING
 	decb copy -3 -a -l README $@,README
 
