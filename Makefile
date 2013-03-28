@@ -4,17 +4,13 @@ CFLAGS=-Wall
 
 RUN?=mon09
 
-TARGBASE=ppmtog6c8 ppmtosg24 ppmtoflip44
+TARGBASE=ppmtoflip44
 
-TARGDECB=testg6c8.slz \
-	testsg24.slz \
-	testflip44.slz \
+TARGDECB=testflip44.slz \
 	sluzexec.bin \
 	sluzzle.dsk
 
-TARGMON09=testg6c8.s19 \
-	testsg24.s19 \
-	testflip44.s19 \
+TARGMON09=testflip44.s19 \
 	sluzexec.s19
 
 TARGETS=$(TARGBASE)
@@ -26,7 +22,7 @@ else
 $(error Invalid RUN definition!)
 endif
 
-OBJECTS=testg6c8.asm testsg24.asm testflip44.asm
+OBJECTS=testflip44.asm
 
 EXTRA=gencolors colors.h
 
@@ -54,15 +50,9 @@ gencolors: gencolors.o
 colors.h: gencolors
 	./gencolors > $@
 
-ppmtog6c8.o: colors.h
+ppmtoflip44.o: colors.h palette.h
 
-ppmtog6c8: ppmtog6c8.o palette.h
-	$(CC) $(CFLAGS) -o $@ $<
-
-ppmtosg24: ppmtosg24.o palette.h
-	$(CC) $(CFLAGS) -o $@ $<
-
-ppmtoflip44: ppmtoflip44.o palette.h
+ppmtoflip44: ppmtoflip44.o
 	$(CC) $(CFLAGS) -o $@ $<
 
 test.ppm: test.jpg
@@ -70,19 +60,13 @@ test.ppm: test.jpg
 		-background blue -gravity center -extent 128x192 \
 		test.jpg test.ppm
 
-testg6c8.asm: test.ppm ppmtog6c8
-	./ppmtog6c8 $< $@
-
-testsg24.asm: test.ppm ppmtosg24
-	./ppmtosg24 $< $@
-
 testflip44.asm: test.ppm ppmtoflip44
 	./ppmtoflip44 $< $@
 
 sluzzle.bas: $(LOADER_PARTS)
 	cat $(LOADER_PARTS) > $@
 
-sluzzle.dsk: sluzzle.bas testg6c8.slz sluzexec.bin COPYING README 
+sluzzle.dsk: sluzzle.bas testflip44.slz sluzexec.bin COPYING README 
 	decb dskini $@
 	decb copy -0 -b -l -t sluzzle.bas $@,SLUZZLE.BAS
 	decb copy -2 -b sluzexec.bin $@,SLUZEXEC.BIN
