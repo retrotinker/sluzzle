@@ -2685,7 +2685,7 @@ CHKKYBD	clr	PIA0D1		Check for any key input
 	cmpa	#$7f
 	bne	CHKKBD0		If active columns, look for legal keys
 	dec	PIA0D1		Reset keyboard col selects
-	bra	VLOOP		No active columns, so continue
+	lbra	VLOOP		No active columns, so continue
 
 CHKKBD0	lda	#$fb		Check for 'BREAK' first...
 	sta	PIA0D1
@@ -2751,8 +2751,22 @@ CHKKBD6	lda	#$fe		Check for 'h'
 	lda	#$75
 	bra	CHKKBDX
 
+CHKKBD7	lda	#$7f		Check for 'SHIFT'
+	sta	PIA0D1
+	lda	PIA0D0
+	bita	#$40
+	bne	CHKKBD8
+
+	lda	#$7f		Also check for '/' (? is Shift-/)
+	sta	PIA0D1
+	lda	PIA0D0
+	bita	#$20
+	bne	CHKKBD8
+
+	lbra	SHOWHLP		Reenable text screen, should show help info
+
 * Ignore this for now, or maybe signal illegal move...
-CHKKBD7	lda	#$ff		Reset keyboard col selects
+CHKKBD8	lda	#$ff		Reset keyboard col selects
 	sta	PIA0D1
 	jmp	VSTART
 
@@ -2908,6 +2922,32 @@ CKINPEX	lbsr	UNSCRAM		Unscramble the screen
 	addd	#$0001
 
 	jmp	EXIT
+
+*
+* Entry point to show help screen
+*
+* NOTE: called from highest level (not from a function)
+*
+SHOWHLP	clr	$ffc4		Set SAM for A/S mode
+	clr	$ffc2
+
+	clr	$ffca		Restore text screen
+	clr	$ffc6
+
+	clr	$ff22		Set VDG for A/S mode
+
+	clr	PIA0D1		Check for any key input
+SHWHLP1	lda	PIA0D0
+	anda	#$7f		Check for any active columns
+	cmpa	#$7f
+	bne	SHWHLP1		Wait for initial key release
+SHWHLP2	lda	PIA0D0
+	anda	#$7f		Check for any active columns
+	cmpa	#$7f
+	beq	SHWHLP2		Wait for next key press
+	dec	PIA0D1		Reset keyboard col selects
+
+	jmp	VSTART
 
 *
 * Entry point for when the game is won
