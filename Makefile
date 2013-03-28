@@ -9,17 +9,13 @@ TARGBASE=ppmtog6c8 ppmtosg24 ppmtoflip44
 TARGDECB=testg6c8.pic \
 	testsg24.pic \
 	testflip44.pic \
-	viewg6c8.bin \
-	viewsg24.bin \
-	viewflip44.bin \
+	sluzexec.bin \
 	sluzzle.dsk
 
 TARGMON09=testg6c8.s19 \
 	testsg24.s19 \
 	testflip44.s19 \
-	viewg6c8.s19 \
-	viewsg24.s19 \
-	viewflip44.s19
+	sluzexec.s19
 
 TARGETS=$(TARGBASE)
 ifeq ($(RUN),decb)
@@ -86,10 +82,10 @@ testflip44.asm: test.ppm ppmtoflip44
 sluzzle.bas: $(LOADER_PARTS)
 	cat $(LOADER_PARTS) > $@
 
-sluzzle.dsk: sluzzle.bas testg6c8.pic viewg6c8.bin COPYING README 
+sluzzle.dsk: sluzzle.bas testg6c8.pic sluzexec.bin COPYING README 
 	decb dskini $@
 	decb copy -0 -b -l -t sluzzle.bas $@,SLUZZLE.BAS
-	decb copy -2 -b viewg6c8.bin $@,VIEWG6C8.BIN
+	decb copy -2 -b sluzexec.bin $@,SLUZEXEC.BIN
 	decb copy -2 -b testg6c8.pic $@,TESTG6C8.PIC
 	decb copy -3 -a -l COPYING $@,COPYING
 	decb copy -3 -a -l README $@,README
