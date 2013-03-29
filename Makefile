@@ -2,7 +2,7 @@
 
 CFLAGS=-Wall
 
-RUN?=mon09
+RUN?=decb
 
 TARGBASE=ppmtoflip44
 
