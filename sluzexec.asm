@@ -49,6 +49,7 @@ ACTMVLT	equ	$03			...for move left
 ACTMVRT	equ	$04			...for move right
 ACTUNSC	equ	$05			...for unscramble
 ACTRESC	equ	$06			...for rescramble
+ACTHELP	equ	$07			...for show help
 
 	org	LOAD
 START	pshs	dp,y		Push partial entry state onto stack
@@ -2778,7 +2779,8 @@ CHKKBDB	lda	#$7f		Check for 'SHIFT'
 	bita	#$20
 	bne	CHKKBDC
 
-	lbra	SHOWHLP		Reenable text screen, should show help info
+	lda	#ACTHELP
+	bra	CHKKBDX
 
 CHKKBDC	lda	#$ff		Reset keyboard col selects
 	sta	PIA0D1
@@ -2803,6 +2805,7 @@ CKACTJT	bra	CKACTEX		Jump table (2 bytes per entry)
 	bra	CKACTRT
 	bra	CKACTUN
 	bra	CKACTRE
+	bra	CKACTHP
 
 CKACTUN	lbsr	BLOKSAV		Save the state of the blocks...
 	lbsr	UNSCRAM
@@ -2857,6 +2860,8 @@ CKACTG1	cmpa	a,x		Compare offset to value at offset
 
 CKACTLP	jmp	VSTART
 
+CKACTHP	jmp	SHOWHLP		Show help screen
+
 CKACTEX	lbsr	UNSCRAM		Unscramble the screen
 
 	ldd	MOVECNT		Negate the number of legal moves
@@ -2910,7 +2915,7 @@ SGVACTV	nop
 	jmp	VINIT
 
 *
-* Entry point to show help screen
+* Entry point to show help screen (i.e. reenable text screen)
 *
 * NOTE: called from highest level (not from a function)
 *
@@ -2926,11 +2931,7 @@ SHOWHLP	clr	$ffc4		Set SAM for A/S mode
 SHWHLP1	lda	PIA0D0
 	anda	#$7f		Check for any active columns
 	cmpa	#$7f
-	bne	SHWHLP1		Wait for initial key release
-SHWHLP2	lda	PIA0D0
-	anda	#$7f		Check for any active columns
-	cmpa	#$7f
-	beq	SHWHLP2		Wait for next key press
+	beq	SHWHLP1		Wait for next key press
 	dec	PIA0D1		Reset keyboard col selects
 
 	jmp	VSTART
