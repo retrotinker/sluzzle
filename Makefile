@@ -68,6 +68,7 @@ sluzzle.bas: $(LOADER_PARTS)
 
 sluzzle.dsk: sluzzle.bas testflip44.slz sluzexec.bin COPYING README 
 	decb dskini $@
+	decb copy -0 -b -l -t autoexec.bas $@,AUTOEXEC.BAS
 	decb copy -0 -b -l -t sluzzle.bas $@,SLUZZLE.BAS
 	decb copy -2 -b sluzexec.bin $@,SLUZEXEC.BIN
 	decb copy -2 -b testflip44.slz $@,TESTFLIP.SLZ
