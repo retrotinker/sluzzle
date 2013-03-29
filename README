@@ -1,11 +1,59 @@
 This repository contains Sluzzle, a sliding puzzle game for the Tandy
 Color Computer 1 & 2, TDP-100, and other compatible machines.
 
+The source code is available through Git, at the links available here:
+
+        http://git.infradead.org/users/linville/sluzzle.git
+
 This code is related to my "Stupid VDG Tricks" blog:
 
 	http://vdgtricks.blogspot.com/
 
-Still in progress...
+The game is simple -- after selecting a picture file, the picture
+is scrambled in a (pseudo-)random fashion.  The player must then
+manipulate blocks of the picture by moving them through an open block
+one at a time in order to unscramble the picture.  When the picture
+is unscrambled, the game is over -- but you can play as many times
+as you like, with no quarters necessary!
+
+The game starts with a simple menu for selecting the picture.  After
+the picture is selected, a guide to the game controls is displayed
+while the picture is loaded.  You can return to that control guide
+at any time by typing '?'.  Also available (by typing 'h') is a hint
+facility that unscrambles the picture temporarily.  Block movement
+is available by typing 'i', 'j', 'k', and 'l' (respectively for up,
+left, down, and right).  Pressing any key starts the game or resumes
+it after a hint or a peek at the control guide, and pressing the
+BREAK key ends the game.
+
+Control Guide
+
+  ? - Control Guide
+
+  H - Show Hint
+
+  I - Move Lower Block Up
+  K - Move Upper Block Down
+  J - Move Block Right to Left
+  L - Move Block Left to Right
+
+  BREAK ends current game
+
+Pictures must be in the Sluzzle format and must carry a SLZ extension
+for SLUZZLE.BAS to recognize them on the disk.  One might convert
+and display their own pictures for Sluzzle using the tools provided
+in the Git repoitory shown above.
+
+By default, SLUZZLE.BAS assumes that pictures are on DRIVE 0.
+The picture DRIVE can be selected through the OTHER OPTIONS menu,
+option 10 in the picture selection menu.
+
+I hope you enjoy Sluzzle -- may the odds be ever in your favor! :-)
 
 John W. Linville
-23 March 2013
+29 March 2013
+
+P.S. Sluzzle presumes that SLUZEXEC.BIN is in the default DRIVE when
+SLUZZLE.BAS runs (e.g. RUN "SLUZZLE/BAS:1" only works after a DRIVE
+1 command).  Please make sure to run SLUZZLE.BAS only from the current
+default DRIVE.
