@@ -2673,7 +2673,7 @@ CHKKBD0	lda	#$fb		Check for 'BREAK' first...
 	bne	CHKKBD1
 
 	lda	#ACTEXIT
-	bra	CHKKBDX
+	lbra	CHKKBDX
 
 CHKKBD1	tst	GAMSTAT		Check for non-zero game status next...
 	beq	CHKKBD2		...to pair unscramble w/ rescramble...
@@ -2681,7 +2681,7 @@ CHKKBD1	tst	GAMSTAT		Check for non-zero game status next...
 	clr	GAMSTAT
 
 	lda	#ACTRESC
-	bra	CHKKBDX
+	lbra	CHKKBDX
 
 CHKKBD2	lda	#$fd		Check for 'i'
 	sta	PIA0D1
@@ -2690,7 +2690,7 @@ CHKKBD2	lda	#$fd		Check for 'i'
 	bne	CHKKBD3
 
 	lda	#ACTMVUP
-	bra	CHKKBDX
+	lbra	CHKKBDX
 
 CHKKBD3	lda	#$fb		Check for 'j'
 	sta	PIA0D1
@@ -2699,7 +2699,7 @@ CHKKBD3	lda	#$fb		Check for 'j'
 	bne	CHKKBD4
 
 	lda	#ACTMVLT
-	bra	CHKKBDX
+	lbra	CHKKBDX
 
 CHKKBD4	lda	#$f7		Check for 'k'
 	sta	PIA0D1
@@ -2719,32 +2719,68 @@ CHKKBD5	lda	#$ef		Check for 'l'
 	lda	#ACTMVRT
 	bra	CHKKBDX
 
-CHKKBD6	lda	#$fe		Check for 'h'
+CHKKBD6	lda	#$f7		Check for 'UP ARROW'
+	sta	PIA0D1
+	lda	PIA0D0
+	bita	#$08
+	bne	CHKKBD7
+
+	lda	#ACTMVUP
+	bra	CHKKBDX
+
+CHKKBD7	lda	#$df		Check for 'LEFT ARROW'
+	sta	PIA0D1
+	lda	PIA0D0
+	bita	#$08
+	bne	CHKKBD8
+
+	lda	#ACTMVLT
+	bra	CHKKBDX
+
+CHKKBD8	lda	#$ef		Check for 'DOWN ARROW'
+	sta	PIA0D1
+	lda	PIA0D0
+	bita	#$08
+	bne	CHKKBD9
+
+	lda	#ACTMVDN
+	bra	CHKKBDX
+
+CHKKBD9	lda	#$bf		Check for 'RIGHT ARROW'
+	sta	PIA0D1
+	lda	PIA0D0
+	bita	#$08
+	bne	CHKKBDA
+
+	lda	#ACTMVRT
+	bra	CHKKBDX
+
+CHKKBDA	lda	#$fe		Check for 'h'
 	sta	PIA0D1
 	lda	PIA0D0
 	bita	#$02
-	bne	CHKKBD7
+	bne	CHKKBDB
 
 	dec	GAMSTAT		Indicate screen is unscrambled...
 
 	lda	#ACTUNSC
 	bra	CHKKBDX
 
-CHKKBD7	lda	#$7f		Check for 'SHIFT'
+CHKKBDB	lda	#$7f		Check for 'SHIFT'
 	sta	PIA0D1
 	lda	PIA0D0
 	bita	#$40
-	bne	CHKKBD8
+	bne	CHKKBDC
 
 	lda	#$7f		Also check for '/' (? is Shift-/)
 	sta	PIA0D1
 	lda	PIA0D0
 	bita	#$20
-	bne	CHKKBD8
+	bne	CHKKBDC
 
 	lbra	SHOWHLP		Reenable text screen, should show help info
 
-CHKKBD8	lda	#$ff		Reset keyboard col selects
+CHKKBDC	lda	#$ff		Reset keyboard col selects
 	sta	PIA0D1
 	jmp	VSTART
 
