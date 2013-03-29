@@ -122,24 +122,9 @@ GAMSTRT	clr	GAMSTAT		Clear the game state field
 
 	lbsr	SHUFFLE		Shuffle the blocks...
 
-	ldx	#BLOKMAP	Save the block state
-	ldy	#SAVEMAP
-
-	lda	#$0f
-
-GAMSTR1	ldb	a,x
-	stb	a,y
-	deca
-	bne	GAMSTR1
-	ldb	,x
-	stb	,y
-
-	lda	CURBLOK
-	sta	SAVBLOK
-
+	lbsr	BLOKSAV		Save the state of the blocks...
 	lbsr	UNSCRAM		Start with unscrambled image...
 	dec	GAMSTAT		And wait for initial key press...
-
 
 VSTART	clr	$ffc3		Setup G6C video mode at address $0e00
 	clr	$ffc5
@@ -2783,21 +2768,7 @@ CKACTJT	bra	CKACTEX		Jump table (2 bytes per entry)
 	bra	CKACTUN
 	bra	CKACTRE
 
-CKACTUN	ldx	#BLOKMAP
-	ldy	#SAVEMAP
-
-	lda	#$0f
-
-CKACUNL	ldb	a,x
-	stb	a,y
-	deca
-	bne	CKACUNL
-	ldb	,x
-	stb	,y
-
-	lda	CURBLOK
-	sta	SAVBLOK
-
+CKACTUN	lbsr	BLOKSAV		Save the state of the blocks...
 	lbsr	UNSCRAM
 	bra	CKACTLP
 
@@ -2952,6 +2923,29 @@ EXIT	pshs	b		Save B for return value
 	stb     PIA0C1
 	puls	dp,b,y		Pull partial entry state from stack
 	jmp	GIVABF		Return a value to Color BASIC
+
+*
+* Save the state of the blocks
+*
+*	A,B clobbered
+*	X,Y clobbered
+*
+BLOKSAV	ldx	#BLOKMAP	Save the block state
+	ldy	#SAVEMAP
+
+	lda	#$0f
+
+BLKSAV1	ldb	a,x
+	stb	a,y
+	deca
+	bne	BLKSAV1
+	ldb	,x
+	stb	,y
+
+	lda	CURBLOK
+	sta	SAVBLOK
+
+	rts
 
 *
 * Shuffle the blocks!
