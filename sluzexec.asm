@@ -42,6 +42,14 @@ RSKPLEN	equ	$06
 
 BLKHGHT	equ	$30		If changed, need to adjust block offset math
 
+ACTEXIT	equ	$00		Input action code for exit
+ACTMVUP	equ	$01			...for move up
+ACTMVDN	equ	$02			...for move down
+ACTMVLT	equ	$03			...for move left
+ACTMVRT	equ	$04			...for move right
+ACTUNSC	equ	$05			...for unscramble
+ACTRESC	equ	$06			...for rescramble
+
 	org	LOAD
 START	pshs	dp,y		Push partial entry state onto stack
 
@@ -2679,7 +2687,7 @@ CHKKBD0	lda	#$fb		Check for 'BREAK' first...
 	bita	#$40
 	bne	CHKKBD1
 
-	lda	#$00
+	lda	#ACTEXIT
 	bra	CHKKBDX
 
 CHKKBD1	tst	GAMSTAT		Check for non-zero game status next...
@@ -2687,7 +2695,7 @@ CHKKBD1	tst	GAMSTAT		Check for non-zero game status next...
 
 	clr	GAMSTAT
 
-	lda	#$72
+	lda	#ACTRESC
 	bra	CHKKBDX
 
 CHKKBD2	lda	#$fd		Check for 'i'
@@ -2696,7 +2704,7 @@ CHKKBD2	lda	#$fd		Check for 'i'
 	bita	#$02
 	bne	CHKKBD3
 
-	lda	#$6b
+	lda	#ACTMVUP
 	bra	CHKKBDX
 
 CHKKBD3	lda	#$fb		Check for 'j'
@@ -2705,7 +2713,7 @@ CHKKBD3	lda	#$fb		Check for 'j'
 	bita	#$02
 	bne	CHKKBD4
 
-	lda	#$68
+	lda	#ACTMVLT
 	bra	CHKKBDX
 
 CHKKBD4	lda	#$f7		Check for 'k'
@@ -2714,7 +2722,7 @@ CHKKBD4	lda	#$f7		Check for 'k'
 	bita	#$02
 	bne	CHKKBD5
 
-	lda	#$6a
+	lda	#ACTMVDN
 	bra	CHKKBDX
 
 CHKKBD5	lda	#$ef		Check for 'l'
@@ -2723,7 +2731,7 @@ CHKKBD5	lda	#$ef		Check for 'l'
 	bita	#$02
 	bne	CHKKBD6
 
-	lda	#$6c
+	lda	#ACTMVRT
 	bra	CHKKBDX
 
 CHKKBD6	lda	#$fe		Check for 'h'
@@ -2734,7 +2742,7 @@ CHKKBD6	lda	#$fe		Check for 'h'
 
 	dec	GAMSTAT		Indicate screen is unscrambled...
 
-	lda	#$75
+	lda	#ACTUNSC
 	bra	CHKKBDX
 
 CHKKBD7	lda	#$7f		Check for 'SHIFT'
@@ -2751,7 +2759,6 @@ CHKKBD7	lda	#$7f		Check for 'SHIFT'
 
 	lbra	SHOWHLP		Reenable text screen, should show help info
 
-* Ignore this for now, or maybe signal illegal move...
 CHKKBD8	lda	#$ff		Reset keyboard col selects
 	sta	PIA0D1
 	jmp	VSTART
@@ -2763,8 +2770,98 @@ CHKKBDX	ldb	PIA0D0		Wait for key release
 
 	ldb	#$ff		Reset keyboard col selects
 	stb	PIA0D1
-	jmp	CHKINPT
 
+CHKACTN	lsla			Shift offset for jump table entry width
+	ldx	#CKACTJT
+	jmp	a,x
+
+CKACTJT	bra	CKACTEX		Jump table (2 bytes per entry)
+	bra	CKACTUP
+	bra	CKACTDN
+	bra	CKACTLT
+	bra	CKACTRT
+	bra	CKACTUN
+	bra	CKACTRE
+
+CKACTUN	ldx	#BLOKMAP
+	ldy	#SAVEMAP
+
+	lda	#$0f
+
+CKACUNL	ldb	a,x
+	stb	a,y
+	deca
+	bne	CKACUNL
+	ldb	,x
+	stb	,y
+
+	lda	CURBLOK
+	sta	SAVBLOK
+
+	lbsr	UNSCRAM
+	bra	CKACTLP
+
+CKACTRE	lbsr	RESCRAM
+	bra	CKACTLP
+
+CKACTUP	lbsr	MOVEUP
+	bcs	CKACTLP
+	bra	CKACTSN
+
+CKACTDN	lbsr	MOVEDN
+	bcs	CKACTLP
+	bra	CKACTSN
+
+CKACTLT	lbsr	MOVELT
+	bcs	CKACTLP
+	bra	CKACTSN
+
+CKACTRT	lbsr	MOVERT
+	bcs	CKACTLP
+;	bra	CKACTSN
+
+CKACTSN	ldb	#$20
+
+CKACTS1	tst	PIA0D0		Play tone for successful move
+	sync
+
+	lda	PIA1D1		Toggle square wave output...
+	eora	#SQWAVE
+	sta	PIA1D1
+
+	decb
+	bne	CKACTS1
+
+	ldd	MOVECNT		Increment the legal move counter
+	addd	#$01
+	std	MOVECNT
+
+CKACTGW	ldx	#BLOKMAP	Point at block map
+	lda	#$0f		Initialize offset
+
+CKACTG1	cmpa	a,x		Compare offset to value at offset
+	bne	CKACTLP		If no match, then loop
+
+	deca			Decrement offset
+	bne	CKACTG1		If not zero, keep checking
+
+	cmpa	a,x		Still have to check offset zero
+	beq	GAMEWON		Match?  Winner!
+
+CKACTLP	jmp	VSTART
+
+CKACTEX	lbsr	UNSCRAM		Unscramble the screen
+
+	ldd	MOVECNT		Negate the number of legal moves
+	coma
+	comb
+	addd	#$0001
+
+	jmp	EXIT
+
+*
+* Normal (no input) execution resumes here...
+*
 VLOOP	clr	$ffca		Point the VDG at the SG24 data
 	clr	$ffcf
 	lda	#$e0
@@ -2804,110 +2901,6 @@ SGVACTV	nop
 	bne	SGVACTV
 
 	jmp	VINIT
-
-*
-* Check control input
-*
-*	A input value, clobbered
-*	B clobbered
-*
-* NOTE: called from highest level (not from a function)
-*
-* NOTE: After control processing, jumps to VSTART instead of VSYNC.
-*	Otherwise, would have to track Hsync properly...
-*
-CHKINPT	cmpa	#$6b
-	beq	CKINPUP
-	cmpa	#$6a
-	beq	CKINPDN
-	cmpa	#$68
-	beq	CKINPLT
-	cmpa	#$6c
-	beq	CKINPRT
-
-	cmpa	#$75
-	beq	CKUNSCR
-
-	cmpa	#$72
-	beq	CKRESCR
-
-	bra	CKINPEX
-
-CKUNSCR	ldx	#BLOKMAP
-	ldy	#SAVEMAP
-
-	lda	#$0f
-
-CKUNSLP	ldb	a,x
-	stb	a,y
-	deca
-	bne	CKUNSLP
-	ldb	,x
-	stb	,y
-
-	lda	CURBLOK
-	sta	SAVBLOK
-
-	lbsr	UNSCRAM
-	bra	CKINPLP
-
-CKRESCR	lbsr	RESCRAM
-	bra	CKINPLP
-
-CKINPUP	lbsr	MOVEUP
-	bcs	CKINPLP
-	bra	CKINPSN
-
-CKINPDN	lbsr	MOVEDN
-	bcs	CKINPLP
-	bra	CKINPSN
-
-CKINPLT	lbsr	MOVELT
-	bcs	CKINPLP
-	bra	CKINPSN
-
-CKINPRT	lbsr	MOVERT
-	bcs	CKINPLP
-;	bra	CKINPSN
-
-CKINPSN	ldb	#$20
-
-CKINPS1	tst	PIA0D0		Play tone for successful move
-	sync
-
-	lda	PIA1D1		Toggle square wave output...
-	eora	#SQWAVE
-	sta	PIA1D1
-
-	decb
-	bne	CKINPS1
-
-	ldd	MOVECNT		Increment the legal move counter
-	addd	#$01
-	std	MOVECNT
-
-CKINPGW	ldx	#BLOKMAP	Point at block map
-	lda	#$0f		Initialize offset
-
-CKINGW1	cmpa	a,x		Compare offset to value at offset
-	bne	CKINPLP		If no match, then loop
-
-	deca			Decrement offset
-	bne	CKINGW1		If not zero, keep checking
-
-	cmpa	a,x		Still have to check offset zero
-	beq	GAMEWON		Match?  Winner!
-
-CKINPLP	jmp	VSTART
-
-CKINPEX	lbsr	UNSCRAM		Unscramble the screen
-
-	ldd	MOVECNT		Negate the number of legal moves
-	coma
-	comb
-	addd	#$0001
-
-	jmp	EXIT
 
 *
 * Entry point to show help screen
@@ -2983,7 +2976,7 @@ SHUFFL1	lbsr	LFSRGET		Pick a "random" number
 	ldx	#SHUFFJT	Setup jump table
 	jmp	a,x		Jump to offset for directional choice
 
-SHUFFJT	bra	SHUFFUP		Jump table, (2 bytes per entry)
+SHUFFJT	bra	SHUFFUP		Jump table (2 bytes per entry)
 	bra	SHUFFDN
 	bra	SHUFFLT
 	bra	SHUFFRT
