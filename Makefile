@@ -8,6 +8,7 @@ TARGBASE=ppmtoslz
 
 TARGDECB=testpic.slz \
 	sluzexec.bin \
+	sluzzle.bas \
 	sluzzle.dsk
 
 TARGMON09=testpic.s19 \
