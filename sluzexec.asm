@@ -2665,20 +2665,6 @@ HROW1ST	sta	$ff22
 	sta	$ff22
 	sta	$ff22
 
-* Check for user break (development only)
-CHKUART	lda	$ff69		Check for serial port activity
-	bita	#$08
-	beq	CHKKYBD
-	lda	$ff68
-
-	tst	GAMSTAT		If in hint state, clear it
-	beq	CHKURT1
-
-	clr	GAMSTAT
-	lda	#$72
-
-CHKURT1	jmp	CHKINPT
-
 CHKKYBD	clr	PIA0D1		Check for any key input
 	lda	PIA0D0
 	anda	#$7f		Check for any active columns
