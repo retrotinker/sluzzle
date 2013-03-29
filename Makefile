@@ -4,13 +4,13 @@ CFLAGS=-Wall
 
 RUN?=decb
 
-TARGBASE=ppmtoflip44
+TARGBASE=ppmtoslz
 
-TARGDECB=testflip44.slz \
+TARGDECB=testpic.slz \
 	sluzexec.bin \
 	sluzzle.dsk
 
-TARGMON09=testflip44.s19 \
+TARGMON09=testpic.s19 \
 	sluzexec.s19
 
 TARGETS=$(TARGBASE)
@@ -22,7 +22,7 @@ else
 $(error Invalid RUN definition!)
 endif
 
-OBJECTS=testflip44.asm
+OBJECTS=testpic.asm
 
 EXTRA=gencolors colors.h
 
@@ -50,9 +50,9 @@ gencolors: gencolors.o
 colors.h: gencolors
 	./gencolors > $@
 
-ppmtoflip44.o: colors.h palette.h
+ppmtoslz.o: colors.h palette.h
 
-ppmtoflip44: ppmtoflip44.o
+ppmtoslz: ppmtoslz.o
 	$(CC) $(CFLAGS) -o $@ $<
 
 test.ppm: test.jpg
@@ -60,18 +60,18 @@ test.ppm: test.jpg
 		-background blue -gravity center -extent 128x192 \
 		test.jpg test.ppm
 
-testflip44.asm: test.ppm ppmtoflip44
-	./ppmtoflip44 $< $@
+testpic.asm: test.ppm ppmtoslz
+	./ppmtoslz $< $@
 
 sluzzle.bas: $(LOADER_PARTS)
 	cat $(LOADER_PARTS) > $@
 
-sluzzle.dsk: sluzzle.bas testflip44.slz sluzexec.bin COPYING README 
+sluzzle.dsk: sluzzle.bas testpic.slz sluzexec.bin COPYING README 
 	decb dskini $@
 	decb copy -0 -b -l -t autoexec.bas $@,AUTOEXEC.BAS
 	decb copy -0 -b -l -t sluzzle.bas $@,SLUZZLE.BAS
 	decb copy -2 -b sluzexec.bin $@,SLUZEXEC.BIN
-	decb copy -2 -b testflip44.slz $@,TESTFLIP.SLZ
+	decb copy -2 -b testpic.slz $@,TESTPIC.SLZ
 	decb copy -3 -a -l COPYING $@,COPYING
 	decb copy -3 -a -l README $@,README
 

@@ -9,17 +9,17 @@ colors.h
 
 # intermediate objects
 gencolors.o
-ppmtoflip44.o
+ppmtoslz.o
 
 # tool binaries
 gencolors
-ppmtoflip44
+ppmtoslz
 
 # test images and binaries
 test.ppm
-testflip44.asm
-testflip44.slz
-testflip44.s19
+testpic.asm
+testpic.slz
+testpic.s19
 
 # sluzzle viewer/game binaries
 sluzexec.bin
