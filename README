@@ -51,11 +51,6 @@ option 10 in the picture selection menu.
 I hope you enjoy Sluzzle -- may the odds be ever in your favor! :-)
 
 John W. Linville
-29 March 2013
+31 March 2013
 
-P.S. Sluzzle presumes that SLUZEXEC.BIN is in the default DRIVE when
-SLUZZLE.BAS runs (e.g. RUN "SLUZZLE/BAS:1" only works after a DRIVE
-1 command).  Please make sure to run SLUZZLE.BAS only from the current
-default DRIVE.
-
-P.P.S.  Sorry, PAL users -- this code only works w/ NTSC timings... :-(
+P.S.  Sorry, PAL users -- this code only works w/ NTSC timings... :-(
