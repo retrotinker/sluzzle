@@ -111,7 +111,7 @@ BMINILP	sta	a,x
 	sta	CURBLOK		Set bottom-rightmost block as current block
 	lbsr	BLBLOCK		Blank-out bottom-rightmost block
 
-	lda	TIMVAL		Initialize LFSR seed
+	lda	TIMVAL+1	Initialize LFSR seed
 	bne	LFSRINI
 	lda	#$01		Can't start w/ zero
 LFSRINI	sta	LFSRDAT
