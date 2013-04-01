@@ -2843,7 +2843,7 @@ CKACTS1	tst	PIA0D0		Play tone for successful move
 	bne	CKACTS1
 
 	ldd	MOVECNT		Increment the legal move counter
-	addd	#$01
+	addd	#$0001
 	std	MOVECNT
 
 CKACTGW	ldx	#BLOKMAP	Point at block map
