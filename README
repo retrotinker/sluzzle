@@ -44,9 +44,13 @@ for SLUZZLE.BAS to recognize them on the disk.  One might convert
 and display their own pictures for Sluzzle using the tools provided
 in the Git repoitory shown above.
 
-By default, SLUZZLE.BAS assumes that pictures are on DRIVE 0.
-The picture DRIVE can be selected through the OTHER OPTIONS menu,
-option 10 in the picture selection menu.
+By default, SLUZZLE.BAS assumes that pictures are on the current
+default DRIVE.  The picture DRIVE can be changed through the OTHER
+OPTIONS menu, option 10 in the picture selection menu.
+
+Sluzzle's BASIC loader attempts to load its M/L binary from the last
+accessed DRIVE.  It is recommended to RUN Sluzzle directly from disk
+(e.g. RUN "SLUZZLE/BAS:1") in order to satisfy this condition.
 
 I hope you enjoy Sluzzle -- may the odds be ever in your favor! :-)
 
