@@ -2659,15 +2659,58 @@ HROW1ST	sta	$ff22
 	sta	$ff22
 	sta	$ff22
 
+*
+* SG24 display code starts here...
+*
+SGSTART	clr	$ffca		Point the VDG at the SG24 data
+	clr	$ffcf
+	lda	#$e0
+	sta	$ff22
+SGVSYNC	ldb	#$45		Count lines during vblank and vertical borders
+SHCOUNT	tst	$ff00
+	sync
+	decb
+	bne	SHCOUNT
+	ldb	#$c0
+	tst	$ff00
+	sync
+SGVACTV	nop
+	andcc	#$ff
+	lda	#$00		Need CSS preset for background color!
+	sta	$ff22
+	nop
+	nop
+	nop
+	nop
+	nop
+	nop
+	nop
+	nop
+	nop
+	nop
+	nop
+	nop
+	andcc	#$ff
+	lda	#$e0		Set for G6C mode to get chosen background!
+	sta	$ff22
+	nop
+	nop
+	nop
+	nop
+	decb
+	bne	SGVACTV
+
 CHKKYBD	clr	PIA0D1		Check for any key input
 	lda	PIA0D0
 	anda	#$7f		Check for any active columns
 	cmpa	#$7f
 	bne	CHKKBD0		If active columns, look for legal keys
 	dec	PIA0D1		Reset keyboard col selects
-	lbra	VLOOP		No active columns, so continue
+	lbra	VINIT		No active columns, so continue
 
-CHKKBD0	lda	#$fb		Check for 'BREAK' first...
+CHKKBD0	clr	$ff22		Switch to SG24 mode for keyboard handling
+
+	lda	#$fb		Check for 'BREAK' first...
 	sta	PIA0D1
 	lda	PIA0D0
 	bita	#$40
@@ -2709,7 +2752,7 @@ CHKKBD4	lda	#$f7		Check for 'k'
 	bne	CHKKBD5
 
 	lda	#ACTMVDN
-	bra	CHKKBDX
+	lbra	CHKKBDX
 
 CHKKBD5	lda	#$ef		Check for 'l'
 	sta	PIA0D1
@@ -2782,8 +2825,13 @@ CHKKBDB	lda	#$7f		Check for 'SHIFT'
 	lda	#ACTHELP
 	bra	CHKKBDX
 
-CHKKBDC	lda	#$ff		Reset keyboard col selects
-	sta	PIA0D1
+CHKKBDC	clr	PIA0D1		Enable all keyboard col selects
+	ldb	PIA0D0		Wait for key release
+	andb	#$7f
+	cmpb	#$7f
+	bne	CHKKBDC
+
+	dec	PIA0D1		Reset keyboard col selects
 	jmp	VSTART
 
 CHKKBDX	ldb	PIA0D0		Wait for key release
@@ -2870,49 +2918,6 @@ CKACTEX	lbsr	UNSCRAM		Unscramble the screen
 	addd	#$0001
 
 	jmp	EXIT
-
-*
-* Normal (no input) execution resumes here...
-*
-VLOOP	clr	$ffca		Point the VDG at the SG24 data
-	clr	$ffcf
-	lda	#$e0
-	sta	$ff22
-SGVSYNC	ldb	#$45		Count lines during vblank and vertical borders
-SHCOUNT	tst	$ff00
-	sync
-	decb
-	bne	SHCOUNT
-	ldb	#$c0
-	tst	$ff00
-	sync
-SGVACTV	nop
-	andcc	#$ff
-	lda	#$00		Need CSS preset for background color!
-	sta	$ff22
-	nop
-	nop
-	nop
-	nop
-	nop
-	nop
-	nop
-	nop
-	nop
-	nop
-	nop
-	nop
-	andcc	#$ff
-	lda	#$e0		Set for G6C mode to get chosen background!
-	sta	$ff22
-	nop
-	nop
-	nop
-	nop
-	decb
-	bne	SGVACTV
-
-	jmp	VINIT
 
 *
 * Entry point to show help screen (i.e. reenable text screen)
