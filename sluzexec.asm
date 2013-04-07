@@ -19,6 +19,7 @@
 LOAD	equ	$6100
 
 TIMVAL	equ	$0112		Color BASIC's free-running time counter
+INTCNV	equ	$b3ed		Color BASIC's routine for taking an integer
 GIVABF	equ	$b4f4		Color BASIC's routine for returning a value
 
 PIA0D0	equ	$ff00		Coco hardware definitions
@@ -53,6 +54,10 @@ ACTHELP	equ	$07			...for show help
 
 	org	LOAD
 START	pshs	dp,y		Push partial entry state onto stack
+
+	jsr	INTCNV		Get timeout parameter passed from Color BASIC
+	std	>TIMEOUT
+	std	>TIMECNT
 
 	lda	#$ff		Setup DP register
 	tfr	a,dp
@@ -155,7 +160,12 @@ VINIT	clr	$ffce
 *
 * After the program starts, vsync interrupts aren't used...
 *
-VSYNC	ldb	#$45		Count lines during vblank and vertical borders
+VSYNC	ldd	TIMECNT		Decrement inactivity timeout counter
+	subd	#$0001
+	lbeq	TIMEX
+	std	TIMECNT
+
+	ldb	#$44		Count lines during vblank and vertical borders
 HCOUNT	tst	$ff00
 	sync
 	decb
@@ -2666,7 +2676,13 @@ SGSTART	clr	$ffca		Point the VDG at the SG24 data
 	clr	$ffcf
 	lda	#$e0
 	sta	$ff22
-SGVSYNC	ldb	#$45		Count lines during vblank and vertical borders
+
+SGVSYNC	ldd	TIMECNT		Decrement inactivity timeout counter
+	subd	#$0001
+	lbeq	TIMEX
+	std	TIMECNT
+
+	ldb	#$45		Count lines during vblank and vertical borders
 SHCOUNT	tst	$ff00
 	sync
 	decb
@@ -2710,6 +2726,9 @@ CHKKYBD	clr	PIA0D1		Check for any key input
 
 CHKKBD0	clr	$ff22		Switch to SG24 mode for keyboard handling
 
+	ldd	TIMEOUT		Reset inactivity timeout counter
+	std	TIMECNT
+
 	lda	#$fb		Check for 'BREAK' first...
 	sta	PIA0D1
 	lda	PIA0D0
@@ -2752,7 +2771,7 @@ CHKKBD4	lda	#$f7		Check for 'k'
 	bne	CHKKBD5
 
 	lda	#ACTMVDN
-	lbra	CHKKBDX
+	bra	CHKKBDX
 
 CHKKBD5	lda	#$ef		Check for 'l'
 	sta	PIA0D1
@@ -2949,6 +2968,20 @@ SHWHLP1	lda	PIA0D0
 GAMEWON	ldd	MOVECNT		Return the number of moves
 
 	jmp	EXIT
+
+*
+* Entry point for timeout counter expiring
+*
+* NOTE: called from highest level (not from a function)
+*
+TIMEX	ldd	TIMEOUT		Check for non-zero timeout value
+	beq	TIMEX1
+
+	lbsr	UNSCRAM		Unscramble the screen
+	jmp	EXIT
+
+TIMEX1	std	TIMECNT		Reset time counter
+	jmp	VSTART
 
 *
 * Entry point to exit the game
@@ -3652,5 +3685,8 @@ SAVBLOK	rmb	1		Save area for current "empty" (during "hint")
 GAMSTAT	rmb	1		Current game state
 
 MOVECNT	rmb	2		Count of total legal moves
+
+TIMECNT	rmb	2		Timeout counter for inactivity
+TIMEOUT	rmb	2		Reset value for timeout counter
 
 	END	START

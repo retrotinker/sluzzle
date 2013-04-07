@@ -27,7 +27,7 @@ OBJECTS=testpic.asm
 
 EXTRA=gencolors colors.h
 
-LOADER_PARTS=init.bas intro.bas select.bas dir.bas load.bas options.bas
+LOADER_PARTS=init.bas intro.bas select.bas dir.bas load.bas options.bas input.bas
 
 all: $(TARGETS)
 
