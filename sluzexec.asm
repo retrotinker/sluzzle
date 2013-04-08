@@ -2977,7 +2977,15 @@ GAMEWON	ldd	MOVECNT		Return the number of moves
 TIMEX	ldd	TIMEOUT		Check for non-zero timeout value
 	beq	TIMEX1
 
+	clr	$ff22		Switch to SG24 mode
+
 	lbsr	UNSCRAM		Unscramble the screen
+
+	ldd	MOVECNT		Negate the number of legal moves
+	coma
+	comb
+	addd	#$0001
+
 	jmp	EXIT
 
 TIMEX1	std	TIMECNT		Reset time counter
